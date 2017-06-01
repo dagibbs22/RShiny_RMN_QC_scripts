@@ -95,7 +95,7 @@ shinyServer(function(input, output, session) {
 
   })
   
-  #Purely for testing purposes. To make sure text is being interpreted properly.
+  #FOR TESTING. To make sure text is being interpreted properly.
   output$file <- renderText({
     
     inFile <- input$file1
@@ -115,7 +115,7 @@ shinyServer(function(input, output, session) {
     minval <- fileAttribs[1,3]
     maxval <- fileAttribs[1,4]
 
-    paste("This is for more testing", input$outputDir)
+    paste("This is for more testing", input$val1, input$val2)
   })
   
   #Prints the first four lines of the input spreadsheet. For testing purposes.
@@ -131,7 +131,11 @@ shinyServer(function(input, output, session) {
     head(read.csv(inFile$datapath),4)
   })
   
-    #Runs the selected process by calling on the QC script that Erik Leppo wrote
+  
+  #FOR TESTING ONLY
+  values <- reactiveValues(df_data = NULL)
+  
+  #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
 
     inFile <- input$file1
@@ -162,15 +166,23 @@ shinyServer(function(input, output, session) {
     outputFolder <- input$outputDir
     
     #Invokes the QC/aggregate/summarize script
-    ContDataQC(input$Operation, 
-               stationID, 
-               dataType, 
-               startDate,
-               endDate,
-               "C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data1_RAW", 
-               outputFolder,
-               "")
+    # ContDataQC(input$Operation, 
+    #            stationID, 
+    #            dataType, 
+    #            startDate,
+    #            endDate,
+    #            "C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data1_RAW", 
+    #            outputFolder,
+    #            "")
+    
+    #FOR TESTING ONLY
+    val1b <- as.numeric(input$val1)
+    val2b <- as.numeric(input$val2)
+    values$df_data <- testFunc(val1b, val2b)
   })
+  
+  #FOR TESTING ONLY
+  output$df_data_out <- renderTable(values$df_data)
   
   #For testing purposes
   #output$table = DT::renderDataTable(datasetInput())

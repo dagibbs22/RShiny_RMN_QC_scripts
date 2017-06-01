@@ -29,6 +29,10 @@ shinyUI(fluidPage(
       #User types or copies in the full output directory
       ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
 
+      #FOR TESTING
+      ,textInput("val1", label="First value")
+      ,textInput("val2", label="Second value")
+      
       #Runs the selected process
       ,actionButton("runProcess",label='Run Operation')
       
@@ -37,9 +41,12 @@ shinyUI(fluidPage(
 
     mainPanel(
 
-      #Outputs the testing text, the table with properties of the input spreadsheets,
-      #and a testing table of the beginning of the spreadsheets
+      #FOR TESTING ONLY. Outputs testing text and some other testing outout
       textOutput("file")
+      ,tableOutput("df_data_out")
+      
+      #Outputs the table with properties of the input spreadsheets,
+      #and a testing table of the beginning of the spreadsheets
       ,tableOutput("summaryTable")
       ,tableOutput("contents")
     )
