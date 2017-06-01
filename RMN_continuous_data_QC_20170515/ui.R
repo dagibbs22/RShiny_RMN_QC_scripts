@@ -36,7 +36,7 @@ shinyUI(fluidPage(
       #Runs the selected process
       ,actionButton("runProcess",label='Run Operation')
       
-    ),##sidebarpanel.END
+    ),##sidebarpanel.END 
     
 
     mainPanel(
