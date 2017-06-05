@@ -1,7 +1,5 @@
+#Source of supporting functions
 source("global.R")
-
-#setwd("C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515")
-
 
 shinyServer(function(input, output, session) {
 
@@ -69,7 +67,7 @@ shinyServer(function(input, output, session) {
     #end dates from the input file name.
     #The returned object is a data.frame, in which each column has one
     #of the attributes.
-    fileAttribs <- nameParse(filename)
+    fileAttribs <- nameParse(filename, input$Operation)
 
     #Creates objects for the station ID, type of data in the file
     #(e.g., Air, Air & Water, Water) and start and end dates of
@@ -83,13 +81,13 @@ shinyServer(function(input, output, session) {
     recordCount <- nrow(measurements)
 
     #Creates the summary table with column headings
-    summaryTable <- data.frame(filename, stationID, dataType, startDate, endDate, recordCount)
-    columns <- c("File name", "Station ID", "Data type", "Starting date", "Ending date", "Record count")
+    summaryTable <- data.frame(inFile$datapath, filename, stationID, dataType, startDate, endDate, recordCount)
+    columns <- c("Path", "File name", "Station ID", "Data type", "Starting date", "Ending date", "Record count")
     colnames(summaryTable) <- columns
 
     #Reformats the date columns to be the right date format
-    summaryTable[,4] <- format(summaryTable[,4], "%Y-%m-%d")
     summaryTable[,5] <- format(summaryTable[,5], "%Y-%m-%d")
+    summaryTable[,6] <- format(summaryTable[,6], "%Y-%m-%d")
 
     return(summaryTable)
 
@@ -108,7 +106,7 @@ shinyServer(function(input, output, session) {
     #Extracts the name of the file from the input file
     filename <- inFile$name
 
-    fileAttribs <- nameParse(filename)
+    fileAttribs <- nameParse(filename, input$Operation)
 
     stationID <- fileAttribs[1,1]
     dataType <- fileAttribs[1,2]
@@ -134,6 +132,7 @@ shinyServer(function(input, output, session) {
   
   #FOR TESTING ONLY
   values <- reactiveValues(df_data = NULL)
+  values2 <- reactiveValues(df_data2 = NULL)
   
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
@@ -147,7 +146,7 @@ shinyServer(function(input, output, session) {
     #end dates from the input file name.
     #The returned object is a data.frame, in which each column has one
     #of the attributes.
-    fileAttribs <- nameParse(filename)
+    fileAttribs <- nameParse(filename, input$Operation)
     
     #Creates objects for the station ID, type of data in the file
     #(e.g., Air, Air & Water, Water) and start and end dates of
@@ -162,30 +161,31 @@ shinyServer(function(input, output, session) {
     startDate <- format(startDate, "%Y-%m-%d")
     endDate <- format(endDate, "%Y-%m-%d")
     
-    #Renames the output folder object
+    #Renames the input and output folder objects
+    inputFolder <- input$inputDir
     outputFolder <- input$outputDir
-    
-    #Invokes the QC/aggregate/summarize script
-    # ContDataQC(input$Operation, 
-    #            stationID, 
-    #            dataType, 
-    #            startDate,
-    #            endDate,
-    #            "C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data1_RAW", 
-    #            outputFolder,
-    #            "")
     
     #FOR TESTING ONLY
     val1b <- as.numeric(input$val1)
     val2b <- as.numeric(input$val2)
     values$df_data <- testFunc(val1b, val2b)
+    values2$df_data2 <- head(diversity(div), val1b)
+    
+    #Invokes the QC/aggregate/summarize script
+    ContDataQC(input$Operation,
+               stationID,
+               dataType,
+               startDate,
+               endDate,
+               inputFolder,
+               outputFolder,
+               #"C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data1_RAW",
+               #"C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data2_QC",
+               "")
   })
   
   #FOR TESTING ONLY
-  output$df_data_out <- renderTable(values$df_data)
-  
-  #For testing purposes
-  #output$table = DT::renderDataTable(datasetInput())
+  output$df_data2_out <- renderTable(values2$df_data2)
   
 }##shinyServer.END
 )

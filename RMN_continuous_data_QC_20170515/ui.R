@@ -27,6 +27,9 @@ shinyUI(fluidPage(
       #,helpText("HelpText",label="Help Text")
       
       #User types or copies in the full output directory
+      ,textInput("inputDir", label="Input directory for data", value = "", width = NULL, placeholder = NULL)
+      
+      #User types or copies in the full output directory
       ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
 
       #FOR TESTING
@@ -43,7 +46,7 @@ shinyUI(fluidPage(
 
       #FOR TESTING ONLY. Outputs testing text and some other testing outout
       textOutput("file")
-      ,tableOutput("df_data_out")
+      ,tableOutput("df_data2_out")
       
       #Outputs the table with properties of the input spreadsheets,
       #and a testing table of the beginning of the spreadsheets
