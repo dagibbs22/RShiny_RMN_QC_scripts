@@ -53,13 +53,51 @@ nameParse <- function(strFile, process) {
 }
 
 
-######
-#FOR TESTING ONLY
+######FOR TESTING ONLY
 library(vegan)
 
-#FOR TESTING ONLY
 testFunc <- function(y,z) {
   x <- rpois (y, z)
   return (x)
 }
 div <- data.frame(x=c(0:50), y=c(100:150))
+
+
+######Potentially useful code scraps
+# #Populates fields in the sidebar with the earliest and latest dates in the input spreadsheet
+# output$dates <- renderUI({
+#   
+#   #Makes it so the sidebar doesn't show an error just because dates haven't been selected
+#   inFile <- input$file1
+#   if (is.null(inFile))
+#     return(NULL)
+#   
+#   #creates a copy of the input spreadsheet. Referred to later.
+#   measurements <- datasetInput()
+#   
+#   #Identifies the column number which has the dates 
+#   #based on the user's input of the name of the date field
+#   inDates <- input$dateField
+#   dateColNumb <- which(colnames(measurements)==inDates)
+#   
+#   #creates minimum and maximum dates from the user-indicated date field
+#   dates <- as.Date(datasetInput()[,dateColNumb], format = "%m/%d/%Y")
+#   minval <- min(dates)
+#   maxval <- max(dates)
+#   
+#   #Actually populates the user interface sidebar with the selected dates
+#   dateRangeInput("expDateRange", label = "Choose experiment time-frame:",
+#                  start = minval, end = maxval,
+#                  min = minval, max = maxval,
+#                  separator = " - ", format = "yyyy-mm-dd",
+#                  weekstart = 1
+#   )
+# })
+
+# #Establishes the input spreadsheet. datasetInput is referred to in later sections.
+# datasetInput <- reactive({
+#   inFile <- input$selectedFiles
+#   if (is.null(inFile))
+#     return(NULL)
+#   read.csv(inFile$datapath, header=TRUE)
+# })
