@@ -52,6 +52,26 @@ nameParse <- function(strFile, process) {
   return(siteDF)
 }
 
+#Converts the more intuitive operation names into operation names that
+#the ContDataQC() will recognize
+renameOperation <- function(operation) {
+  if (operation == "Get gage data") {
+    operation <- "GetGageData"
+  }
+  
+  else if (operation == "QC raw data") {
+    operation <- "QCRaw"
+  }
+  
+  else if (operation == "Aggregate QC'ed data") {
+    operation <- "Aggregate"
+  }
+  
+  else {
+    operation <- "SummaryStats"
+  }
+}
+
 
 ######FOR TESTING ONLY
 library(vegan)

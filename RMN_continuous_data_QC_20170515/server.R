@@ -35,11 +35,13 @@ shinyServer(function(input, output, session) {
       #Extracts the name of the file from the input file
       filename <- inFile$name
   
+      operation <- renameOperation(input$Operation)
+      
       #Runs a function to extract the station ID, data type, and start and
       #end dates from the input file name.
       #The returned object is a data.frame, in which each column has one
       #of the attributes.
-      fileAttribs <- nameParse(filename, input$Operation)
+      fileAttribs <- nameParse(filename, operation)
 
       #Creates objects for the station ID, type of data in the file
       #(e.g., Air, Air & Water, Water) and start and end dates of
@@ -102,21 +104,25 @@ shinyServer(function(input, output, session) {
   #     return(NULL)
   #   head(read.csv(inFile$datapath),4)
   # })
-  
+
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
 
+    #Converts the more user-friendly input operation name to the name
+    #that ContDataQC() understands
+    operation <- renameOperation(input$Operation)
+    
     #Renames the data.frame of input files
     inFile <- input$selectedFiles
 
     #Extracts the name of the file from the input file
     filename <- inFile$name
-    
+
     #Runs a function to extract the station ID, data type, and start and
     #end dates from the input file name.
     #The returned object is a data.frame, in which each column has one
     #of the attributes.
-    fileAttribs <- nameParse(filename, input$Operation)
+    fileAttribs <- nameParse(filename, operation)
     
     #Creates objects for the station ID, type of data in the file
     #(e.g., Air, Air & Water, Water) and start and end dates of
@@ -137,7 +143,7 @@ shinyServer(function(input, output, session) {
     outputFolder <- input$outputDir
     
     #Invokes the QC/aggregate/summarize script
-    ContDataQC(input$Operation,
+    ContDataQC(operation,
                stationID,
                dataType,
                startDate,

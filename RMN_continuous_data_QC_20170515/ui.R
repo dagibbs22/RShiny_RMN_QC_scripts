@@ -13,7 +13,10 @@ shinyUI(fluidPage(
       #Operation to be performed on the selected data
       ,selectInput("Operation", 
                   label = "Choose operation to perform",
-                  choices = c("GetGageData", "QCRaw", "Aggregate", "SummaryStats"),
+                  choices = c("Get gage data", 
+                              "QC raw data", 
+                              "Aggregate QC'ed data", 
+                              "Summary statistics"),
                   selected = "QCRaw")
 
       #Not currently using
@@ -26,7 +29,7 @@ shinyUI(fluidPage(
       ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
 
       #Runs the selected process
-      ,actionButton("runProcess",label='Run Operation')
+      ,actionButton("runProcess",label='Run operation')
       
     ),
     
