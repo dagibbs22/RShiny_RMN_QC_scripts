@@ -3,14 +3,9 @@ source("global.R")
 
 shinyServer(function(input, output, session) {
 
-  #Operation to be performed on the data (e.g., QC, aggregation)
-  output$Operation <- renderText({paste("input$Operation is '",input$Operation,"'.",sep="")})
-
-  #Creates a summary table of all input files
-  #so users can check whether the right files are selected.
-  #Each input spreadsheet gets one row.
-  output$summaryTable <- renderTable({
-
+  #Creates a summary data.frame as a reactive object
+  table <- reactive({
+    
     #Makes it so the table area doesn't show an error just because input files haven't been selected yet
     if (is.null(input$selectedFiles))
       return(NULL)
@@ -21,20 +16,22 @@ shinyServer(function(input, output, session) {
                                dataType = character(),
                                startDate = as.Date(character()),
                                endDate = as.Date(character()))
-   
+    
     #All the selected input files are in a data.frame
     allFiles <- input$selectedFiles
     
     #Iterates through all the selected files in the data.frame 
     #to extract information from them
     for (i in 1:nrow(allFiles)) {
-
+      
       #The file currently being extractd from
       inFile <- allFiles[i, ]
       
       #Extracts the name of the file from the input file
       filename <- inFile$name
-  
+      
+      #Renames the user-selected opertion from something user-friendly
+      #to what ContDataQC can understand
       operation <- renameOperation(input$Operation)
       
       #Runs a function to extract the station ID, data type, and start and
@@ -42,7 +39,7 @@ shinyServer(function(input, output, session) {
       #The returned object is a data.frame, in which each column has one
       #of the attributes.
       fileAttribs <- nameParse(filename, operation)
-
+      
       #Creates objects for the station ID, type of data in the file
       #(e.g., Air, Air & Water, Water) and start and end dates of
       #the file
@@ -50,11 +47,11 @@ shinyServer(function(input, output, session) {
       dataType <- fileAttribs[1,2]
       startDate <- fileAttribs[1,3]
       endDate <- fileAttribs[1,4]
-
+      
       #Extracts how many records are in the spreadsheet
       actualData <- read.csv(inFile$datapath, header=TRUE)
       recordCount <- nrow(actualData)
-
+      
       #Adds this input file's information to the summary table
       summaryRow <- data.frame(filename, stationID, dataType, startDate, endDate, recordCount)
       summaryTable <- rbind(summaryTable, summaryRow)
@@ -63,13 +60,19 @@ shinyServer(function(input, output, session) {
     #Creates column names for the summary table
     columns <- c("File name", "Station ID", "Data type", "Starting date", "Ending date", "Record count")
     colnames(summaryTable) <- columns
-
+    
     #Reformats the date columns to be the right date format
     summaryTable[,4] <- format(summaryTable[,4], "%Y-%m-%d")
     summaryTable[,5] <- format(summaryTable[,5], "%Y-%m-%d")
-
+    
     return(summaryTable)
-
+  })
+  
+  #Outputs a summary table of all input files
+  #so users can check whether the right files are selected.
+  #Each input spreadsheet gets one row.
+  output$summaryTable <- renderTable({
+    table()
   })
   
   #FOR TESTING. To make sure text is being interpreted properly.
@@ -86,10 +89,16 @@ shinyServer(function(input, output, session) {
 
     stationID <- fileAttribs[1,1]
     dataType <- fileAttribs[1,2]
-    minval <- fileAttribs[1,3]
-    maxval <- fileAttribs[1,4]
+    
+    #Extracts the earliest starting date and latest ending date
+    #from all input spreadsheets
+    table <- table()
+    startDates <- table[,4]
+    endDates <- table[,5]
+    firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
+    lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
 
-    paste("This is for more testing:", minval, maxval)
+    paste("This is for more testing:", firstDate, lastDate)
   })
   
   # #Prints the first four lines of the input spreadsheet. For testing purposes.
@@ -129,30 +138,44 @@ shinyServer(function(input, output, session) {
     #the file
     stationID <- fileAttribs[1,1]
     dataType <- fileAttribs[1,2]
-    startDate <- fileAttribs[1,3]
-    endDate <- fileAttribs[1,4]
-    
+
     #Formats the file properties correctly
     stationID <- as.character(stationID)
     dataType <- as.character(dataType)
-    startDate <- format(startDate, "%Y-%m-%d")
-    endDate <- format(endDate, "%Y-%m-%d")
     
+    #Extracts the earliest starting date and latest ending date
+    #from all input spreadsheets. These set the date bounds over which
+    #the selected procedure will be run.
+    table <- table()
+    startDates <- table[,4]
+    endDates <- table[,5]
+    firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
+    lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
+
     #Renames the input and output folder objects
     inputFolder <- input$inputDir
     outputFolder <- input$outputDir
     
-    #Invokes the QC/aggregate/summarize script
-    ContDataQC(operation,
-               stationID,
-               dataType,
-               startDate,
-               endDate,
-               inputFolder,
-               outputFolder,
-               #"C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data1_RAW",
-               #"C:/Users/dgibbs/Documents/Projects/Regional_Monitoring_Networks/Continuous_data_processing/RShiny RMN QC scripts/RMN_continuous_data_QC_20170515/Data2_QC",
-               "")
+    #Progress bar to tell the user the operation is running
+    #Taken from https://shiny.rstudio.com/articles/progress.html
+    withProgress(message = paste("Running", operation), value = 0, {
+     
+        #Invokes the QC/aggregate/summarize script
+        ContDataQC(operation,
+                   stationID,
+                   dataType,
+                   firstDate,
+                   lastDate,
+                   inputFolder,
+                   outputFolder,
+                   "")
+      
+      #Fills in the progress bar once the operation is complete
+      incProgress(1, detail = paste(operation, "complete"))
+      Sys.sleep(2.5)
+      
+      })
+    
   })
 
 }

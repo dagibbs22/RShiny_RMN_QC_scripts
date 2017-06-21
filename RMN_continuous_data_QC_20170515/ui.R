@@ -8,7 +8,10 @@ shinyUI(fluidPage(
     sidebarPanel(
 
       #The selected input file
-      fileInput("selectedFiles",label="Choose files", multiple = TRUE)
+      #Tool tip code from https://stackoverflow.com/questions/16449252/tooltip-on-shiny-r
+      tags$div(title="Select one or more files to upload here",
+                  fileInput("selectedFiles",label="Choose files", multiple = TRUE)
+      )
       
       #Operation to be performed on the selected data
       ,selectInput("Operation", 
@@ -17,7 +20,7 @@ shinyUI(fluidPage(
                               "QC raw data", 
                               "Aggregate QC'ed data", 
                               "Summary statistics"),
-                  selected = "QCRaw")
+                  selected = "QC raw data")
 
       #Not currently using
       #,helpText("HelpText",label="Help Text")
@@ -29,18 +32,20 @@ shinyUI(fluidPage(
       ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
 
       #Runs the selected process
-      ,actionButton("runProcess",label='Run operation')
+      ,tags$div(title="Click to run selected operation",
+                actionButton("runProcess",label='Run operation')
+      )
       
     ),
     
     mainPanel(
 
       #FOR TESTING ONLY. Outputs testing text
-      textOutput("testText")
+      #textOutput("testText")
 
       #Outputs the table with properties of the input spreadsheets,
       #and a testing table of the beginning of the spreadsheets
-      ,tableOutput("summaryTable")
+      tableOutput("summaryTable")
       # ,tableOutput("contents")
     )
   )
