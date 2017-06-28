@@ -98,7 +98,7 @@ shinyServer(function(input, output, session) {
     firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
     lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
 
-    paste("This is for more testing:", firstDate, lastDate)
+    paste("This is for more testing:", input$inputDir, input$outputDir)
   })
   
   # #Prints the first four lines of the input spreadsheet. For testing purposes.
@@ -179,13 +179,13 @@ shinyServer(function(input, output, session) {
           
           #Changes the status bar to say that the process is occurring
           incProgress(0, detail = paste("Operating on", fileName))
-          
-          Sys.sleep(3)
-          
+
           #Runs ContDataQC() on just this input file
           ContDataQC(operation, 
                      fun.myDir.import = inputFolder,
                      fun.myDir.export = outputFolder,
+                     # fun.myDir.import=gsub("\\\\","/",input$inputDir),
+                     # fun.myDir.export=gsub("\\\\","/",input$outputDir),
                      fun.myFile = fileName
                      )
           

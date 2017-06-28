@@ -43,7 +43,7 @@ shinyUI(fluidPage(
     mainPanel(
 
       #FOR TESTING ONLY. Outputs testing text
-      #textOutput("testText")
+      textOutput("testText"),
 
       #Outputs the table with properties of the input spreadsheets,
       #and a testing table of the beginning of the spreadsheets
