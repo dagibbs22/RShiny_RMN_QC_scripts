@@ -121,62 +121,153 @@ shinyServer(function(input, output, session) {
     #that ContDataQC() understands
     operation <- renameOperation(input$Operation)
     
-    #Renames the data.frame of input files
-    inFile <- input$selectedFiles
-
-    #Extracts the name of the file from the input file
-    filename <- inFile$name
-
-    #Runs a function to extract the station ID, data type, and start and
-    #end dates from the input file name.
-    #The returned object is a data.frame, in which each column has one
-    #of the attributes.
-    fileAttribs <- nameParse(filename, operation)
-    
-    #Creates objects for the station ID, type of data in the file
-    #(e.g., Air, Air & Water, Water) and start and end dates of
-    #the file
-    stationID <- fileAttribs[1,1]
-    dataType <- fileAttribs[1,2]
-
-    #Formats the file properties correctly
-    stationID <- as.character(stationID)
-    dataType <- as.character(dataType)
-    
-    #Extracts the earliest starting date and latest ending date
-    #from all input spreadsheets. These set the date bounds over which
-    #the selected procedure will be run.
-    table <- table()
-    startDates <- table[,4]
-    endDates <- table[,5]
-    firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
-    lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
-
     #Renames the input and output folder objects
     inputFolder <- input$inputDir
     outputFolder <- input$outputDir
     
+    #All the selected input files are in a data.frame
+    allFiles <- input$selectedFiles
+    
     #Progress bar to tell the user the operation is running
     #Taken from https://shiny.rstudio.com/articles/progress.html
     withProgress(message = paste("Running", operation), value = 0, {
-     
-        #Invokes the QC/aggregate/summarize script
-        ContDataQC(operation,
-                   stationID,
-                   dataType,
-                   firstDate,
-                   lastDate,
-                   inputFolder,
-                   outputFolder,
-                   "")
+    
+      #A short pause before the operation begins
+      Sys.sleep(3)
       
-      #Fills in the progress bar once the operation is complete
-      incProgress(1, detail = paste(operation, "complete"))
-      Sys.sleep(2.5)
+      #Aggregating files requires having all the file names in a single string input for fun.myFile.
+      #Thus, all files selected to be aggregated have their names put into a string.
+      if (operation == "Aggregate") {
+        
+        #All the filenames selected for input
+        fileNames <- allFiles$name
+        
+        #Turns the matrix of filenames into a string of filenames
+        fileNameVector <-  as.vector(fileNames)
+        
+        #Changes the status bar to say that aggregation is occurring
+        incProgress(0, detail = paste("Aggregating files"))
+        
+        #Runs aggregation part of ContDataQC() on the input files
+        ContDataQC(operation, 
+                   fun.myDir.import = inputFolder,
+                   fun.myDir.export = outputFolder,
+                   fun.myFile = fileNameVector
+        )
+        
+        #Fills in the progress bar once the operation is complete
+        incProgress(1, detail = paste("Finished aggregating files"))
+        
+        #Pauses the progress bar once it's done
+        Sys.sleep(20)
+        
+      }
       
-      })
+      #The QCRaw and Summarize functions can be fed individual input files
+      #in order to have the progress bar incremement after each one is processed
+      else {
+      
+        #Iterates through all the selected files in the data.frame 
+        #to perform the QC script on them individually
+        for (i in 1:nrow(allFiles)) {
+          
+          #The file currently being extractd from
+          inFile <- allFiles[i, ]
+          
+          #Extracts the name of the file from the input file
+          fileName <- inFile$name
+          
+          #Changes the status bar to say that the process is occurring
+          incProgress(0, detail = paste("Operating on", fileName))
+          
+          Sys.sleep(3)
+          
+          #Runs ContDataQC() on just this input file
+          ContDataQC(operation, 
+                     fun.myDir.import = inputFolder,
+                     fun.myDir.export = outputFolder,
+                     fun.myFile = fileName
+                     )
+          
+          #Fills in the progress bar once the operation is complete
+          incProgress(1/nrow(allFiles), detail = paste("Finished", fileName))
+          
+          #Pauses the progress bar once it's done
+          Sys.sleep(20)
+          
+        }
+        
+      }
+
+    })
     
   })
+    
+    
+    
+  # #Runs the selected process by calling on the QC script that Erik Leppo wrote
+  # observeEvent(input$runProcess, {
+  #     
+  #   #Converts the more user-friendly input operation name to the name
+  #   #that ContDataQC() understands
+  #   operation <- renameOperation(input$Operation)
+  #     
+    # #Renames the data.frame of input files
+    # inFile <- input$selectedFiles
+    # 
+    # #Extracts the name of the file from the input file
+    # filename <- inFile$name
+    # 
+    # #Runs a function to extract the station ID, data type, and start and
+    # #end dates from the input file name.
+    # #The returned object is a data.frame, in which each column has one
+    # #of the attributes.
+    # fileAttribs <- nameParse(filename, operation)
+    # 
+    # #Creates objects for the station ID, type of data in the file
+    # #(e.g., Air, Air & Water, Water) and start and end dates of
+    # #the file
+    # stationID <- fileAttribs[1,1]
+    # dataType <- fileAttribs[1,2]
+    # 
+    # #Formats the file properties correctly
+    # stationID <- as.character(stationID)
+    # dataType <- as.character(dataType)
+    # 
+    # #Extracts the earliest starting date and latest ending date
+    # #from all input spreadsheets. These set the date bounds over which
+    # #the selected procedure will be run.
+    # table <- table()
+    # startDates <- table[,4]
+    # endDates <- table[,5]
+    # firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
+    # lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
+    # 
+    # #Renames the input and output folder objects
+    # inputFolder <- input$inputDir
+    # outputFolder <- input$outputDir
+    # 
+    # #Progress bar to tell the user the operation is running
+    # #Taken from https://shiny.rstudio.com/articles/progress.html
+    # withProgress(message = paste("Running", operation), value = 0, {
+    # 
+    #     #Invokes the QC/aggregate/summarize script
+    #     ContDataQC(operation,
+    #                stationID,
+    #                dataType,
+    #                firstDate,
+    #                lastDate,
+    #                inputFolder,
+    #                outputFolder,
+    #                "")
+    # 
+    # #Fills in the progress bar once the operation is complete
+    # incProgress(1, detail = paste(operation, "complete"))
+    # Sys.sleep(2.5)
+    # 
+    # })
+  #   
+  # })
 
 }
 )

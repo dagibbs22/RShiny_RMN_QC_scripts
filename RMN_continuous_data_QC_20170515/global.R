@@ -5,6 +5,8 @@ library(devtools)
 library(ContDataQC)
 library(zoo)
 
+#Maximum individual file size that can be uploaded is 35 MB
+options(shiny.maxRequestSize=70*1024^2)
 
 #Function to parse out the station ID, data type, and starting and ending
 #dates from the input file name.

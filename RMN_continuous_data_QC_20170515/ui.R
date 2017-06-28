@@ -9,8 +9,10 @@ shinyUI(fluidPage(
 
       #The selected input file
       #Tool tip code from https://stackoverflow.com/questions/16449252/tooltip-on-shiny-r
-      tags$div(title="Select one or more files to upload here",
-                  fileInput("selectedFiles",label="Choose files", multiple = TRUE)
+      tags$div(title="Select one or more csv files to upload here",
+                  
+               #Only allows csv files to be imported
+               fileInput("selectedFiles",label="Choose files", multiple = TRUE, accept = ".csv")
       )
       
       #Operation to be performed on the selected data
