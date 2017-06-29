@@ -25,7 +25,7 @@ shinyServer(function(input, output, session) {
       
       #Sends the empty table to be displayed
       return(nullTable)
-    }
+    } 
     
     #Initializes the summary table
     summaryTable <- data.frame(filename = character(), 
