@@ -76,16 +76,6 @@ renameOperation <- function(operation) {
 }
 
 
-######FOR TESTING ONLY
-library(vegan)
-
-testFunc <- function(y,z) {
-  x <- rpois (y, z)
-  return (x)
-}
-div <- data.frame(x=c(0:50), y=c(100:150))
-
-
 
 ######Potentially useful code scraps
 # #Populates fields in the sidebar with the earliest and latest dates in the input spreadsheet

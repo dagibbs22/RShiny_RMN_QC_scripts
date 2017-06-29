@@ -6,10 +6,7 @@ shinyUI(navbarPage("Continuous data QC summary and statistics",
   ),
            
   tabPanel("Tool interface",
-  
-    # Application title
-    titlePanel("Continuous Data: QC and Summary Statistics"),
-    
+
     # Sidebar with inputs for app
     sidebarLayout(
       sidebarPanel(
@@ -52,8 +49,8 @@ shinyUI(navbarPage("Continuous data QC summary and statistics",
         #Header for the summary table
         h4(textOutput("tableHeader")),
         
-        #FOR TESTING ONLY. Outputs testing text
-        textOutput("testText"),
+        # #FOR TESTING ONLY. Outputs testing text
+        # textOutput("testText"),
         
         #Shows an empty table until files are input
         tableOutput("nullTable"),
@@ -65,8 +62,11 @@ shinyUI(navbarPage("Continuous data QC summary and statistics",
     )
   ),
   
-  tabPanel("Tool dialog",
-           p("This page shows any text output by the tool")
+  tabPanel("R console output",
+           p("This page shows text output by the tool."),
+           p("Check this once the tool has finished."),
+           tableOutput("logText")
   )
+  
 )
 )

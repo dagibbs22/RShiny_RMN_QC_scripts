@@ -133,17 +133,20 @@ shinyServer(function(input, output, session) {
     #All the selected input files are in a data.frame
     allFiles <- input$selectedFiles
     
+    #Creates a data.frame for the R console output of the ContDataQC() script
+    console$disp <- data.frame(consoleOutput = character())
+    
     #Progress bar to tell the user the operation is running
     #Taken from https://shiny.rstudio.com/articles/progress.html
     withProgress(message = paste("Running", operation), value = 0, {
     
       #A short pause before the operation begins
-      Sys.sleep(3)
+      Sys.sleep(2)
       
       #Aggregating files requires having all the file names in a single string input for fun.myFile.
       #Thus, all files selected to be aggregated have their names put into a string.
       if (operation == "Aggregate") {
-        
+
         #All the filenames selected for input
         fileNames <- allFiles$name
         
@@ -153,25 +156,37 @@ shinyServer(function(input, output, session) {
         #Changes the status bar to say that aggregation is occurring
         incProgress(0, detail = paste("Aggregating files"))
         
-        #Runs aggregation part of ContDataQC() on the input files
-        ContDataQC(operation, 
-                   fun.myDir.import = inputFolder,
-                   fun.myDir.export = outputFolder,
-                   fun.myFile = fileNameVector
+        #Saves the R console output of ContDataQC()
+        consoleRow <- capture.output(
+          
+                        #Runs aggregation part of ContDataQC() on the input files
+                        ContDataQC(operation, 
+                        fun.myDir.import = inputFolder,
+                        fun.myDir.export = outputFolder,
+                        fun.myFile = fileNameVector
+                        )
         )
+        
+        #Appends the R console output generated from that input file to the 
+        #console output data.frame
+        consoleRow <- data.frame(consoleRow)
+        console$disp <- rbind(console$disp, consoleRow)
         
         #Fills in the progress bar once the operation is complete
         incProgress(1, detail = paste("Finished aggregating files"))
         
         #Pauses the progress bar once it's done
-        Sys.sleep(20)
+        Sys.sleep(2)
+        
+        #Names the single column of the R console output data.frame
+        colnames(console$disp) <- c("R console output for all input files:")
         
       }
       
       #The QCRaw and Summarize functions can be fed individual input files
       #in order to have the progress bar incremement after each one is processed
       else {
-      
+
         #Iterates through all the selected files in the data.frame 
         #to perform the QC script on them individually
         for (i in 1:nrow(allFiles)) {
@@ -185,30 +200,52 @@ shinyServer(function(input, output, session) {
           #Changes the status bar to say that the process is occurring
           incProgress(0, detail = paste("Operating on", fileName))
 
-          #Runs ContDataQC() on just this input file
-          ContDataQC(operation, 
-                     fun.myDir.import = inputFolder,
-                     fun.myDir.export = outputFolder,
-                     # fun.myDir.import=gsub("\\\\","/",input$inputDir),
-                     # fun.myDir.export=gsub("\\\\","/",input$outputDir),
-                     fun.myFile = fileName
-                     )
+          #Saves the R console output of ContDataQC()
+          consoleRow <- capture.output(
+            
+                          #Runs ContDataQC() on an individual file
+                          ContDataQC(operation,
+                          fun.myDir.import = inputFolder,
+                          fun.myDir.export = outputFolder,
+                          fun.myFile = fileName
+                          )
+          )
+
+          #Appends the R console output generated from that input file to the 
+          #console output data.frame
+          consoleRow <- data.frame(consoleRow)
+          console$disp <- rbind(console$disp, consoleRow)
           
           #Fills in the progress bar once the operation is complete
           incProgress(1/nrow(allFiles), detail = paste("Finished", fileName))
           
           #Pauses the progress bar once it's done
-          Sys.sleep(20)
+          Sys.sleep(2)
           
         }
         
+        #Names the single column of the R console output data.frame
+        colnames(console$disp) <- c("R console output for all input files:")
+
       }
 
     })
     
   })
+  
+  #Shows the output notes from ContDataQC from the R console in R Shiny
+  console <- reactiveValues()
+  
+  output$logText <- renderTable({
+
+    if (is.null(input$selectedFiles))
+      return(NULL)
+
+    return(console$disp)
     
-    
+  })
+  
+
     
   # #Runs the selected process by calling on the QC script that Erik Leppo wrote
   # observeEvent(input$runProcess, {
