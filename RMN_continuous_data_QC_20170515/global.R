@@ -125,3 +125,16 @@ div <- data.frame(x=c(0:50), y=c(100:150))
 #     return(NULL)
 #   read.csv(inFile$datapath, header=TRUE)
 # })
+
+# #Prints the first four lines of the input spreadsheet. For testing purposes.
+# output$contents <- renderTable({
+#   # input$selectedFiles will be NULL initially. After the user selects
+#   # and uploads a file, it will be a data frame with 'name',
+#   # 'size', 'type', and 'datapath' columns. The 'datapath'
+#   # column will contain the local filenames where the data can
+#   # be found.
+#   inFile <- input$selectedFiles
+#       if (is.null(inFile))
+#     return(NULL)
+#   head(read.csv(inFile$datapath),4)
+# })

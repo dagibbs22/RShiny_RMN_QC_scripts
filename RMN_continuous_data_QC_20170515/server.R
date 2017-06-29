@@ -3,19 +3,37 @@ source("global.R")
 
 shinyServer(function(input, output, session) {
 
+  output$tableHeader <- renderText("Summary table of input files")
+  
   #Creates a summary data.frame as a reactive object
   table <- reactive({
-    
-    #Makes it so the table area doesn't show an error just because input files haven't been selected yet
-    if (is.null(input$selectedFiles))
-      return(NULL)
+
+    #Shows the table headings before files are input
+    if (is.null(input$selectedFiles)) {
+      
+      #Creates empty table columns
+      nullTable <- data.frame(filenameNull = c("Awaiting data"), 
+                              stationIDNull = c("Awaiting data"),
+                              dataTypeNull = c("Awaiting data"),
+                              startDateNull = c("Awaiting data"),
+                              endDateNull = c("Awaiting data"),
+                              recCountNull = c("Awaiting data"))
+      
+      #Creates column names and adds them to the table
+      columns <- c("File name", "Station ID", "Data type", "Starting date", "Ending date", "Record count")
+      colnames(nullTable) <- columns
+      
+      #Sends the empty table to be displayed
+      return(nullTable)
+    }
     
     #Initializes the summary table
     summaryTable <- data.frame(filename = character(), 
                                stationID = character(),
                                dataType = character(),
                                startDate = as.Date(character()),
-                               endDate = as.Date(character()))
+                               endDate = as.Date(character()),
+                               recordCount = as.integer())
     
     #All the selected input files are in a data.frame
     allFiles <- input$selectedFiles
@@ -24,7 +42,7 @@ shinyServer(function(input, output, session) {
     #to extract information from them
     for (i in 1:nrow(allFiles)) {
       
-      #The file currently being extractd from
+      #The file currently being extracted from
       inFile <- allFiles[i, ]
       
       #Extracts the name of the file from the input file
@@ -100,19 +118,6 @@ shinyServer(function(input, output, session) {
 
     paste("This is for more testing:", input$inputDir, input$outputDir)
   })
-  
-  # #Prints the first four lines of the input spreadsheet. For testing purposes.
-  # output$contents <- renderTable({
-  #   # input$selectedFiles will be NULL initially. After the user selects
-  #   # and uploads a file, it will be a data frame with 'name',
-  #   # 'size', 'type', and 'datapath' columns. The 'datapath'
-  #   # column will contain the local filenames where the data can
-  #   # be found.
-  #   inFile <- input$selectedFiles
-  #       if (is.null(inFile))
-  #     return(NULL)
-  #   head(read.csv(inFile$datapath),4)
-  # })
 
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {

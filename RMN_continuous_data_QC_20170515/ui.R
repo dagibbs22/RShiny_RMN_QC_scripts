@@ -42,13 +42,18 @@ shinyUI(fluidPage(
     
     mainPanel(
 
+      #Header for the summary table
+      h4(textOutput("tableHeader")),
+      
       #FOR TESTING ONLY. Outputs testing text
       textOutput("testText"),
-
+      
+      #Shows an empty table until files are input
+      tableOutput("nullTable"),
+      
       #Outputs the table with properties of the input spreadsheets,
       #and a testing table of the beginning of the spreadsheets
       tableOutput("summaryTable")
-      # ,tableOutput("contents")
     )
   )
 ))
