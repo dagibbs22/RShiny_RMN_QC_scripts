@@ -32,12 +32,12 @@ nameParse <- function(strFile, process) {
 
   #Parsing for the SummaryStats step. Files being aggregated have "DATA_" prepended.
   else if (process == "SummaryStats") {
-    strFile.SiteID     <- strFile.parts[[1]][2]
-    strFile.DataType   <- strFile.parts[[1]][3]
+    strFile.SiteID     <- strFile.parts[[1]][3]
+    strFile.DataType   <- strFile.parts[[1]][4]
     # Convert Data Type to proper case
     strFile.DataType <- paste(toupper(substring(strFile.DataType,1,1)),tolower(substring(strFile.DataType,2,nchar(strFile.DataType))),sep="")
-    strFile.Date.Start <- as.Date(strFile.parts[[1]][4],"%Y%m%d")
-    strFile.Date.End   <- as.Date(strFile.parts[[1]][5],"%Y%m%d")
+    strFile.Date.Start <- as.Date(strFile.parts[[1]][5],"%Y%m%d")
+    strFile.Date.End   <- as.Date(strFile.parts[[1]][6],"%Y%m%d")
   }
 
   #Parsing for the QCRaw or GetgageData steps.

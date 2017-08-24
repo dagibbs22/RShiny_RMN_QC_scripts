@@ -3,13 +3,35 @@ source("global.R")
 
 shinyServer(function(input, output, session) {
 
+  #Creates a reactive object with all the input files
+  allFiles <- reactive({
+    allFiles <- input$selectedFiles
+    if(is.null(allFiles)) return(NULL)
+    return(allFiles)
+  })
+
+  #Creates a reactive object with all the input files' names
+  UserFile_Name <- reactive({
+    # q <- input$selectedFiles
+    if(is.null(allFiles())) return(NULL)
+    return(allFiles()$name)
+  })
+  
+  #Creates a reactive object with all the input files' directories
+  UserFile_Path <- reactive({
+    # q <- input$selectedFiles
+    if(is.null(allFiles())) return(NULL)
+    return(allFiles()$datapath)
+  })
+  
+  #Header for the input file summary table
   output$tableHeader <- renderText("Summary table of input files")
   
   #Creates a summary data.frame as a reactive object
   table <- reactive({
 
     #Shows the table headings before files are input
-    if (is.null(input$selectedFiles)) {
+    if (is.null(allFiles())) {
       
       #Creates empty table columns
       nullTable <- data.frame(filenameNull = c("Awaiting data"), 
@@ -35,18 +57,12 @@ shinyServer(function(input, output, session) {
                                endDate = as.Date(character()),
                                recordCount = as.integer())
     
-    #All the selected input files are in a data.frame
-    allFiles <- input$selectedFiles
-    
     #Iterates through all the selected files in the data.frame 
     #to extract information from them
-    for (i in 1:nrow(allFiles)) {
+    for (i in 1:nrow(allFiles())) {
       
-      #The file currently being extracted from
-      inFile <- allFiles[i, ]
-      
-      #Extracts the name of the file from the input file
-      filename <- inFile$name
+      #The filename of the file currently being extracted from
+      filename <- UserFile_Name()[i]
       
       #Renames the user-selected opertion from something user-friendly
       #to what ContDataQC can understand
@@ -67,7 +83,7 @@ shinyServer(function(input, output, session) {
       endDate <- fileAttribs[1,4]
       
       #Extracts how many records are in the spreadsheet
-      actualData <- read.csv(inFile$datapath, header=TRUE)
+      actualData <- read.csv(UserFile_Path()[i], header=TRUE)
       recordCount <- nrow(actualData)
       
       #Adds this input file's information to the summary table
@@ -100,21 +116,21 @@ shinyServer(function(input, output, session) {
     if (is.null(inFile))
       return(NULL)
 
-    #Extracts the name of the file from the input file
-    filename <- inFile$name
-
-    fileAttribs <- nameParse(filename, input$Operation)
-
-    stationID <- fileAttribs[1,1]
-    dataType <- fileAttribs[1,2]
-    
-    #Extracts the earliest starting date and latest ending date
-    #from all input spreadsheets
-    table <- table()
-    startDates <- table[,4]
-    endDates <- table[,5]
-    firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
-    lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
+    # #Extracts the name of the file from the input file
+    # filename <- inFile$name
+    # 
+    # fileAttribs <- nameParse(filename, input$Operation)
+    # 
+    # stationID <- fileAttribs[1,1]
+    # dataType <- fileAttribs[1,2]
+    # 
+    # #Extracts the earliest starting date and latest ending date
+    # #from all input spreadsheets
+    # table <- table()
+    # startDates <- table[,4]
+    # endDates <- table[,5]
+    # firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
+    # lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
 
     paste("This is for more testing:", input$inputDir, input$outputDir)
   })
@@ -122,16 +138,18 @@ shinyServer(function(input, output, session) {
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
 
+    #Moves the user-selected input files from the default upload folder to Shiny's working directory
+    copy.from <- file.path(UserFile_Path())
+    copy.to <- file.path(getwd(), UserFile_Name())
+    file.copy(copy.from, copy.to)
+
     #Converts the more user-friendly input operation name to the name
     #that ContDataQC() understands
     operation <- renameOperation(input$Operation)
     
     #Renames the input and output folder objects
-    inputFolder <- input$inputDir
+    # inputFolder <- input$inputDir
     outputFolder <- input$outputDir
-    
-    #All the selected input files are in a data.frame
-    allFiles <- input$selectedFiles
     
     #Creates a data.frame for the R console output of the ContDataQC() script
     console$disp <- data.frame(consoleOutput = character())
@@ -147,11 +165,8 @@ shinyServer(function(input, output, session) {
       #Thus, all files selected to be aggregated have their names put into a string.
       if (operation == "Aggregate") {
 
-        #All the filenames selected for input
-        fileNames <- allFiles$name
-        
-        #Turns the matrix of filenames into a string of filenames
-        fileNameVector <-  as.vector(fileNames)
+        #Creates a vector of filenames
+        fileNameVector <-  as.vector(UserFile_Name())
         
         #Changes the status bar to say that aggregation is occurring
         incProgress(0, detail = paste("Aggregating files"))
@@ -161,7 +176,8 @@ shinyServer(function(input, output, session) {
           
                         #Runs aggregation part of ContDataQC() on the input files
                         ContDataQC(operation, 
-                        fun.myDir.import = inputFolder,
+                        # fun.myDir.import = inputFolder,
+                        fun.myDir.import = getwd(),
                         fun.myDir.export = outputFolder,
                         fun.myFile = fileNameVector
                         )
@@ -189,13 +205,10 @@ shinyServer(function(input, output, session) {
 
         #Iterates through all the selected files in the data.frame 
         #to perform the QC script on them individually
-        for (i in 1:nrow(allFiles)) {
-          
-          #The file currently being extractd from
-          inFile <- allFiles[i, ]
-          
-          #Extracts the name of the file from the input file
-          fileName <- inFile$name
+        for (i in 1:nrow(allFiles())) {
+
+          #Extracts the name of the file from the selected input file
+          fileName <- UserFile_Name()[i]
           
           #Changes the status bar to say that the process is occurring
           incProgress(0, detail = paste("Operating on", fileName))
@@ -205,7 +218,8 @@ shinyServer(function(input, output, session) {
             
                           #Runs ContDataQC() on an individual file
                           ContDataQC(operation,
-                          fun.myDir.import = inputFolder,
+                          # fun.myDir.import = inputFolder,
+                          fun.myDir.import = getwd(),
                           fun.myDir.export = outputFolder,
                           fun.myFile = fileName
                           )
@@ -217,7 +231,7 @@ shinyServer(function(input, output, session) {
           console$disp <- rbind(console$disp, consoleRow)
           
           #Fills in the progress bar once the operation is complete
-          incProgress(1/nrow(allFiles), detail = paste("Finished", fileName))
+          incProgress(1/nrow(allFiles()), detail = paste("Finished", fileName))
           
           #Pauses the progress bar once it's done
           Sys.sleep(2)
@@ -235,81 +249,15 @@ shinyServer(function(input, output, session) {
   
   #Shows the output notes from ContDataQC from the R console in R Shiny
   console <- reactiveValues()
-  
+
   output$logText <- renderTable({
 
     if (is.null(input$selectedFiles))
       return(NULL)
 
     return(console$disp)
-    
+
   })
-  
-
-    
-  # #Runs the selected process by calling on the QC script that Erik Leppo wrote
-  # observeEvent(input$runProcess, {
-  #     
-  #   #Converts the more user-friendly input operation name to the name
-  #   #that ContDataQC() understands
-  #   operation <- renameOperation(input$Operation)
-  #     
-    # #Renames the data.frame of input files
-    # inFile <- input$selectedFiles
-    # 
-    # #Extracts the name of the file from the input file
-    # filename <- inFile$name
-    # 
-    # #Runs a function to extract the station ID, data type, and start and
-    # #end dates from the input file name.
-    # #The returned object is a data.frame, in which each column has one
-    # #of the attributes.
-    # fileAttribs <- nameParse(filename, operation)
-    # 
-    # #Creates objects for the station ID, type of data in the file
-    # #(e.g., Air, Air & Water, Water) and start and end dates of
-    # #the file
-    # stationID <- fileAttribs[1,1]
-    # dataType <- fileAttribs[1,2]
-    # 
-    # #Formats the file properties correctly
-    # stationID <- as.character(stationID)
-    # dataType <- as.character(dataType)
-    # 
-    # #Extracts the earliest starting date and latest ending date
-    # #from all input spreadsheets. These set the date bounds over which
-    # #the selected procedure will be run.
-    # table <- table()
-    # startDates <- table[,4]
-    # endDates <- table[,5]
-    # firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
-    # lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
-    # 
-    # #Renames the input and output folder objects
-    # inputFolder <- input$inputDir
-    # outputFolder <- input$outputDir
-    # 
-    # #Progress bar to tell the user the operation is running
-    # #Taken from https://shiny.rstudio.com/articles/progress.html
-    # withProgress(message = paste("Running", operation), value = 0, {
-    # 
-    #     #Invokes the QC/aggregate/summarize script
-    #     ContDataQC(operation,
-    #                stationID,
-    #                dataType,
-    #                firstDate,
-    #                lastDate,
-    #                inputFolder,
-    #                outputFolder,
-    #                "")
-    # 
-    # #Fills in the progress bar once the operation is complete
-    # incProgress(1, detail = paste(operation, "complete"))
-    # Sys.sleep(2.5)
-    # 
-    # })
-  #   
-  # })
-
+ 
 }
 )
