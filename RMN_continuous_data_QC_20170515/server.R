@@ -1,4 +1,4 @@
-#Source of supporting functions
+#Source of supporting functions 
 source("global.R")
 
 shinyServer(function(input, output, session) {
