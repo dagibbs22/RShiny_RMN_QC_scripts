@@ -4,7 +4,7 @@ library(devtools)
 #install_github("leppott/ContDataQC")
 library(ContDataQC)
 library(zoo) 
-
+ 
 #Maximum individual file size that can be uploaded is 35 MB
 options(shiny.maxRequestSize=70*1024^2)
  

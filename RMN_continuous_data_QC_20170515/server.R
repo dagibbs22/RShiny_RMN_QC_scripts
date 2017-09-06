@@ -1,6 +1,6 @@
 #Source of supporting functions 
 source("global.R")
-
+ 
 shinyServer(function(input, output, session) {
 
   #Creates a reactive object with all the input files

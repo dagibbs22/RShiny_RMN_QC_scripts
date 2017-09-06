@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.tab
+*.msg
+00_ContDataQC.R
+000b_InstallPandoc.R
+000a_InstallLibraries.R
+Data0_Original
+Data1_RAW
+rsconnect
+Shiny app improvement ideas.docx
