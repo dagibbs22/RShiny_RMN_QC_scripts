@@ -116,23 +116,8 @@ shinyServer(function(input, output, session) {
     if (is.null(inFile))
       return(NULL)
 
-    # #Extracts the name of the file from the input file
-    # filename <- inFile$name
-    # 
-    # fileAttribs <- nameParse(filename, input$Operation)
-    # 
-    # stationID <- fileAttribs[1,1]
-    # dataType <- fileAttribs[1,2]
-    # 
-    # #Extracts the earliest starting date and latest ending date
-    # #from all input spreadsheets
-    # table <- table()
-    # startDates <- table[,4]
-    # endDates <- table[,5]
-    # firstDate <- startDates[order(format(as.Date(startDates), "%Y-%m-%d"))[1]]
-    # lastDate <- endDates[order(format(as.Date(endDates), "%Y-%m-%d"))[length(endDates)]]
-
-    paste("This is for more testing:", input$inputDir, input$outputDir)
+    # paste("This is for more testing:", input$inputDir, input$outputDir)
+    paste("This is for more testing:", getwd())
   })
 
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
@@ -148,7 +133,7 @@ shinyServer(function(input, output, session) {
     operation <- renameOperation(input$Operation)
     
     #Renames the input and output folder objects
-    # inputFolder <- input$inputDir
+    inputFolder <- input$inputDir
     outputFolder <- input$outputDir
     
     #Creates a data.frame for the R console output of the ContDataQC() script

@@ -50,7 +50,7 @@ shinyUI(navbarPage("Continuous data QC summary and statistics",
         h4(textOutput("tableHeader")),
         
         # #FOR TESTING ONLY. Outputs testing text
-        # textOutput(paste("UserFileName")),
+        textOutput(paste("testText")),
         # textOutput(paste("DirServer")),
         
         #Shows an empty table until files are input
