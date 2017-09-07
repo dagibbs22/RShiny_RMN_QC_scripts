@@ -1,8 +1,20 @@
 #Source of supporting functions 
 source("global.R")
- 
+
 shinyServer(function(input, output, session) {
 
+  #To allow users to download a properly formatted template of the continuous data spreadsheet
+  output$downloadTemplate <- downloadHandler(
+      filename <- function() {
+        paste("continuous_data_template", "csv", sep=".")
+      },
+      
+      content <- function(file) {
+        write.csv(dataTemplate, file)
+      }
+    )
+  
+  
   #Creates a reactive object with all the input files
   allFiles <- reactive({
     allFiles <- input$selectedFiles
@@ -180,7 +192,7 @@ shinyServer(function(input, output, session) {
         Sys.sleep(2)
         
         #Names the single column of the R console output data.frame
-        colnames(console$disp) <- c("R console output for all input files:")
+        colnames(console$disp) <- c("R console messages for all input files:")
         
       }
       
@@ -243,6 +255,16 @@ shinyServer(function(input, output, session) {
     return(console$disp)
 
   })
- 
+
+  #Before running tool, shows a message saying that console output will be displayed
+  output$logTextMessage <- renderText({
+    
+    if (is.null(console$disp)){
+      
+      beforeRun <- paste("Check here after running process for script messages...")
+        return(beforeRun)
+    }
+  })
+  
 }
 )

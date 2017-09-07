@@ -1,8 +1,38 @@
-shinyUI(navbarPage("Continuous data QC summary and statistics",
-                     
+shinyUI(
+
+  navbarPage("Continuous data QC summary and statistics",
+                    
   tabPanel("Tool background and data template",
-           h3("Instructions"),
-           p("This is where you can download a template continuous data csv file.")
+           
+           fluidRow(
+             column(5,
+                    h3("Background", align = "center"),
+                    br(),
+                    p("The Regional Monitoring Networks (RMNs) are networks of long-term stream monitoring sites. 
+                      They are a partnership between the U.S. EPA and states, tribes, and other local organizations.
+                      Their goal is to establish a baseline for stream temperature, hydrology, and macroinvertebrate communities
+                      in streams across the US and characterize natural variation and long-term trends. Although the types of 
+                      sites included in the RMNs vary throughout the U.S., many of the sites are high-quality, high-gradient 
+                      reference sites."),
+                    br(),
+                    p("All RMN sites use the same continuous temperature and hydrology measurement protocols. This website
+                      allows RMN partners to QC their continuous stream data in a standard way. It accepts air and water temperature
+                      and pressure, water level, and stream flow."),
+                    br(),
+                    p("For more information on the RMNs, please refer to: https://cfpub.epa.gov/ncea/global/recordisplay.cfm?deid=307973.
+                      If you have questions, please contact bierwagen.britta@epa.gov or gibbs.david@epa.gov.")
+             ),
+             
+             column(5, offset = 1,
+                    h3("Directions", align = "center"),
+                    br(),
+                    p("In order for this QC website to correctly process your continuous data, you need it formatted 
+                      in a specific way. Download a template of the csv to use for this below. The template has a few sample rows 
+                      of data in it; delete these and replace them with your own, making sure you use the same formats.
+                      Be very careful to format the dates correctly; the QC process is very particular about date formats."),
+                    downloadButton("downloadTemplate","Download continuous data template")
+             )
+           )
   ),
            
   tabPanel("Tool interface",
@@ -50,7 +80,7 @@ shinyUI(navbarPage("Continuous data QC summary and statistics",
         h4(textOutput("tableHeader")),
         
         # #FOR TESTING ONLY. Outputs testing text
-        textOutput(paste("testText")),
+        # textOutput(paste("testText")),
         # textOutput(paste("DirServer")),
         
         #Shows an empty table until files are input
@@ -64,9 +94,13 @@ shinyUI(navbarPage("Continuous data QC summary and statistics",
   ),
   
   tabPanel("R console output",
-           p("This page shows text output by the tool."),
-           p("Check this once the tool has finished."),
-           tableOutput("logText")
+           p("This tab shows messages output by the tool. If there are any errors when the tool runs, please copy
+             the messages and send them and the files you tried inputting to the contacts listed on the intro tab."),
+           tableOutput("logText"),
+           br(),
+           br(),
+           br(),
+           textOutput("logTextMessage")
   )
   
 )
