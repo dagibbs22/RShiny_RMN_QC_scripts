@@ -1,6 +1,6 @@
 #Source of supporting functions 
 source("global.R")
-
+ 
 shinyServer(function(input, output, session) {
 
   #To allow users to download a properly formatted template of the continuous data spreadsheet

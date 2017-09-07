@@ -1,5 +1,5 @@
 shinyUI(
-
+ 
   navbarPage("Continuous data QC summary and statistics",
                     
   tabPanel("Tool background and data template",
