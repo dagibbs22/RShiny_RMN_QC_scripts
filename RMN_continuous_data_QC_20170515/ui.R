@@ -72,6 +72,8 @@ shinyUI(
                   actionButton("runProcess",label='Run operation')
         )
         
+        ,downloadButton("downloadData", label = "Download")
+        
       ),
       
       mainPanel(
@@ -80,7 +82,7 @@ shinyUI(
         h4(textOutput("tableHeader")),
         
         # #FOR TESTING ONLY. Outputs testing text
-        # textOutput(paste("testText")),
+        textOutput(paste("testText")),
         # textOutput(paste("DirServer")),
         
         #Shows an empty table until files are input

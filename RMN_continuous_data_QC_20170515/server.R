@@ -217,7 +217,8 @@ shinyServer(function(input, output, session) {
                           ContDataQC(operation,
                           # fun.myDir.import = inputFolder,
                           fun.myDir.import = getwd(),
-                          fun.myDir.export = outputFolder,
+                          fun.myDir.export = getwd(),
+                          # fun.myDir.export = outputFolder,
                           fun.myFile = fileName
                           )
           )
@@ -243,6 +244,51 @@ shinyServer(function(input, output, session) {
     })
     
   })
+ 
+  ####Modified from https://stackoverflow.com/questions/26881368/shiny-download-zip-archive 
+  #zips the output files and makes them accessible for downloading by the user
+  output$downloadData <- downloadHandler(
+    
+    #Names the zip file
+    filename <- function() {
+      paste("testzip", Sys.Date(), "zip", sep=".")
+    },
+
+    #Zips the output files
+    content <- function(fname) {
+      #For running on the local machine
+      # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.csv")
+      # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.docx")
+
+      #Lists only the csv and docx files on the server
+      zip.csv <- dir(getwd(), full.names=TRUE, pattern=" *.csv")
+      zip.docx <- dir(getwd(), full.names=TRUE, pattern=" *.docx")
+      files2zip <- c(zip.csv, zip.docx)
+      
+      #Zips the files
+      zip(zipfile = fname, files = files2zip)
+    }
+    ,contentType = "application/zip"
+  )
+  
+  
+  
+  # myDir.export <- getwd()
+  # 
+  # # files2zip <- dir(myDir.export, full.names = TRUE)
+  # # zip(zipfile = 'testzip', files = files2zip)
+  # # 
+  # # zip.txt <- dir(myDir.export, full.names=TRUE, pattern=" *.txt")
+  # # zip.csv <- dir(myDir.export, full.names=TRUE, pattern=" *.csv")
+  # # zip.docx <- dir(myDir.export, full.names=TRUE, pattern=" *.docx")
+  # # zip.pdf <- dir(myDir.export, full.names=TRUE, pattern=" *.pdf")
+  # # zip.html <- dir(myDir.export, full.names=TRUE, pattern=" *.html")
+  # files2zip <- c(zip.docx)
+  # # files2zip <- c(zip.csv, zip.docx, zip.txt, zip.pdf, zip.html)
+  # zip(zipfile = file.path(myDir.export,"ContDataQC_QCRaw.zip"), files=files2zip)
+  
+  
+
   
   #Shows the output notes from ContDataQC from the R console in R Shiny
   console <- reactiveValues()

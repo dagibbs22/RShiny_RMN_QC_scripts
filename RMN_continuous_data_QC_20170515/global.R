@@ -4,7 +4,11 @@ library(devtools)
 #install_github("leppott/ContDataQC")
 library(ContDataQC)
 library(zoo) 
- 
+
+#Seems necessary for making R able to zip files
+#Don't know if it's needed for web deployment
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:\\Rtools\\bin", sep = ";"))
+
 #Maximum individual file size that can be uploaded is 35 MB
 options(shiny.maxRequestSize=70*1024^2)
 
@@ -77,6 +81,18 @@ renameOperation <- function(operation) {
     operation <- "SummaryStats"
   }
 }
+
+
+# generate_file_name <- function(stationID, dataType, startDate, endDate) {
+#   filename <- paste("QC_", stationID, "_", dataType, "_", startDate, "_", endDate, ".csv")
+#   
+#   myoutput <-  paste(getwd(), filename, sep = "/")
+#   
+#   # Return File Path
+#   return(myoutput)
+# }
+
+
 
 
 
