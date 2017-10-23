@@ -69,7 +69,7 @@ shinyUI(
   
         #Runs the selected process
         ,tags$div(title="Click to run selected operation",
-                  actionButton("runProcess",label='Run operation')
+                  actionButton("runProcess",label= "Run operation")
         )
         
         ,downloadButton("downloadData", label = "Download")

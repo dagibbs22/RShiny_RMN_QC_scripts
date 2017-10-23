@@ -261,8 +261,8 @@ shinyServer(function(input, output, session) {
       # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.docx")
 
       #Lists only the csv and docx files on the server
-      zip.csv <- dir(getwd(), full.names=TRUE, pattern=" *.csv")
-      zip.docx <- dir(getwd(), full.names=TRUE, pattern=" *.docx")
+      zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
+      zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
       files2zip <- c(zip.csv, zip.docx)
       
       #Zips the files
@@ -270,24 +270,6 @@ shinyServer(function(input, output, session) {
     }
     ,contentType = "application/zip"
   )
-  
-  
-  
-  # myDir.export <- getwd()
-  # 
-  # # files2zip <- dir(myDir.export, full.names = TRUE)
-  # # zip(zipfile = 'testzip', files = files2zip)
-  # # 
-  # # zip.txt <- dir(myDir.export, full.names=TRUE, pattern=" *.txt")
-  # # zip.csv <- dir(myDir.export, full.names=TRUE, pattern=" *.csv")
-  # # zip.docx <- dir(myDir.export, full.names=TRUE, pattern=" *.docx")
-  # # zip.pdf <- dir(myDir.export, full.names=TRUE, pattern=" *.pdf")
-  # # zip.html <- dir(myDir.export, full.names=TRUE, pattern=" *.html")
-  # files2zip <- c(zip.docx)
-  # # files2zip <- c(zip.csv, zip.docx, zip.txt, zip.pdf, zip.html)
-  # zip(zipfile = file.path(myDir.export,"ContDataQC_QCRaw.zip"), files=files2zip)
-  
-  
 
   
   #Shows the output notes from ContDataQC from the R console in R Shiny
