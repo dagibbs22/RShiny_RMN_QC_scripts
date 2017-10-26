@@ -3,6 +3,7 @@ source("global.R")
  
 shinyServer(function(input, output, session) {
 
+  ###Downloads data template
   #To allow users to download a properly formatted template of the continuous data spreadsheet
   output$downloadTemplate <- downloadHandler(
       filename <- function() {
@@ -15,6 +16,7 @@ shinyServer(function(input, output, session) {
     )
   
   
+  ###Defines objects for the whole app
   #Creates a reactive object with all the input files
   allFiles <- reactive({
     allFiles <- input$selectedFiles
@@ -24,18 +26,18 @@ shinyServer(function(input, output, session) {
 
   #Creates a reactive object with all the input files' names
   UserFile_Name <- reactive({
-    # q <- input$selectedFiles
     if(is.null(allFiles())) return(NULL)
     return(allFiles()$name)
   })
   
   #Creates a reactive object with all the input files' directories
   UserFile_Path <- reactive({
-    # q <- input$selectedFiles
     if(is.null(allFiles())) return(NULL)
     return(allFiles()$datapath)
   })
   
+  
+  ###Creates a summary input table
   #Header for the input file summary table
   output$tableHeader <- renderText("Summary table of input files")
   
@@ -120,18 +122,15 @@ shinyServer(function(input, output, session) {
   output$summaryTable <- renderTable({
     table()
   })
+
   
-  #FOR TESTING. To make sure text is being interpreted properly.
-  output$testText <- renderText({
-    
-    inFile <- input$selectedFiles
-    if (is.null(inFile))
-      return(NULL)
-
-    # paste("This is for more testing:", input$inputDir, input$outputDir)
-    paste("This is for more testing:", getwd())
+  ###Runs the selected process
+  #Shows the "Run process" button after the data are uploaded
+  output$ui.runProcess <- renderUI({
+    if (is.null(allFiles())) return()
+      actionButton("runProcess", "Run process")
   })
-
+  
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
 
@@ -245,21 +244,29 @@ shinyServer(function(input, output, session) {
     
   })
  
+  ###Downloads the output data and deletes the created files
+  #Shows the "Download" button after the selected process is run
+  output$ui.downloadData <- renderUI({
+    if (is.null(console$disp)) return()
+    downloadButton("downloadData", "Download")
+  })
+  
+  observe({
+  #Zips the output files and makes them accessible for downloading by the user
   ####Modified from https://stackoverflow.com/questions/26881368/shiny-download-zip-archive 
-  #zips the output files and makes them accessible for downloading by the user
   output$downloadData <- downloadHandler(
     
     #Names the zip file
     filename <- function() {
-      paste("testzip", Sys.Date(), "zip", sep=".")
+      paste("zipOutput", Sys.Date(), "zip", sep=".")
     },
-
+    
     #Zips the output files
     content <- function(fname) {
       #For running on the local machine
       # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.csv")
       # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.docx")
-
+      
       #Lists only the csv and docx files on the server
       zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
       zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
@@ -270,20 +277,34 @@ shinyServer(function(input, output, session) {
     }
     ,contentType = "application/zip"
   )
-
+  deleteFiles(getwd(), UserFile_Name())
+  })
   
+
+  #Removes the QC files from the server after the Shiny session ends 
+  #modified from https://groups.google.com/forum/#!topic/shiny-discuss/2WSKDO3Rljo
+  # session$onSessionEnded(function(){
+  # if(!is.null(allFiles())){
+  
+    # csvsOutputsToDelete <- list.files(path = directory, pattern = "QC.*csv", full.names = TRUE)
+    # docxOutputsToDelete <- list.files(path = directory, pattern = ".*docx", full.names = TRUE)
+    # pdfOutputsToDelete <- list.files(path = directory, pattern = ".*pdf", full.names = TRUE)
+    # logOutputsToDelete <- list.files(path = directory, pattern = ".*tab", full.names = TRUE)
+    # inputsToDelete <- paste(directory, inputFiles, sep="/")
+    # 
+    # #Actually deletes the files
+    # file.remove(csvsOutputsToDelete)
+    # file.remove(docxOutputsToDelete)
+    # file.remove(pdfOutputsToDelete)
+    # file.remove(logOutputsToDelete)
+  #  }
+  # })
+  
+  
+  ###Shows the R console output text
   #Shows the output notes from ContDataQC from the R console in R Shiny
   console <- reactiveValues()
-
-  output$logText <- renderTable({
-
-    if (is.null(input$selectedFiles))
-      return(NULL)
-
-    return(console$disp)
-
-  })
-
+  
   #Before running tool, shows a message saying that console output will be displayed
   output$logTextMessage <- renderText({
     
@@ -292,6 +313,49 @@ shinyServer(function(input, output, session) {
       beforeRun <- paste("Check here after running process for script messages...")
         return(beforeRun)
     }
+  })
+  
+  #Shows the output notes from ContDataQC from the R console
+  output$logText <- renderTable({
+
+    if (is.null(input$selectedFiles))
+      return(NULL)
+
+    return(console$disp)
+  })
+  
+
+  
+  
+  # #Clears all inputs from app
+  # observeEvent(input$reset, {
+  #   allfiles()$datapath <- NULL
+  # })
+  
+  
+  
+  ###Shows all files on the server
+  #For debugging only: shows the files on the server
+  onServerTable <- reactive({
+    onServerTableOutput <- as.matrix(list.files(getwd(), full.names = FALSE))
+    colnames(onServerTableOutput) <- c("Files currently on server")
+    return(onServerTableOutput)
+  })
+  
+  output$serverTable <- renderTable({
+    onServerTable()
+  })
+  
+
+  #FOR TESTING. To make sure text is being interpreted properly.
+  output$testText <- renderText({
+    
+    inFile <- input$selectedFiles
+    if (is.null(inFile))
+      return(NULL)
+    
+    # paste("This is for more testing:", input$inputDir, input$outputDir)
+    paste("This is for more testing:", getwd())
   })
   
 }

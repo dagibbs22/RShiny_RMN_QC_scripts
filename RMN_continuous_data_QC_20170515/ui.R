@@ -57,23 +57,27 @@ shinyUI(
                                 "Aggregate QC'ed data", 
                                 "Summary statistics"),
                     selected = "QC raw data")
-  
-        #Not currently using
-        #,helpText("HelpText",label="Help Text")
-        
+
         # #User types or copies in the full output directory
         # ,textInput("inputDir", label="Input directory for data", value = "", width = NULL, placeholder = NULL)
         
-        #User types or copies in the full output directory
-        ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
+        # #User types or copies in the full output directory
+        # ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
   
-        #Runs the selected process
+        #Only shows the "Run process" button after data are uploaded
         ,tags$div(title="Click to run selected operation",
-                  actionButton("runProcess",label= "Run operation")
+                  uiOutput('ui.runProcess')
         )
+        ,br()
+        ,br()
         
-        ,downloadButton("downloadData", label = "Download")
-        
+        #Only shows the "Download" button after the process has run
+        ,tags$div(title="Click to download your data",
+                  uiOutput('ui.downloadData')
+        )
+        # ,br()
+        # ,br()
+        # ,actionButton("reset", "Clear data")
       ),
       
       mainPanel(
@@ -82,9 +86,8 @@ shinyUI(
         h4(textOutput("tableHeader")),
         
         # #FOR TESTING ONLY. Outputs testing text
-        textOutput(paste("testText")),
-        # textOutput(paste("DirServer")),
-        
+        # textOutput(paste("testText")),
+
         #Shows an empty table until files are input
         tableOutput("nullTable"),
         
@@ -99,10 +102,14 @@ shinyUI(
            p("This tab shows messages output by the tool. If there are any errors when the tool runs, please copy
              the messages and send them and the files you tried inputting to the contacts listed on the intro tab."),
            tableOutput("logText"),
-           br(),
-           br(),
-           br(),
            textOutput("logTextMessage")
+
+           ##For debugging only: lists all files on the server
+           ,br()
+           ,br()
+           ,br()
+           ,br()
+           ,tableOutput("serverTable")
   )
   
 )

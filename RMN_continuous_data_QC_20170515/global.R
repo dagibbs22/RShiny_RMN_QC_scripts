@@ -5,8 +5,8 @@ library(devtools)
 library(ContDataQC)
 library(zoo) 
 
-#Seems necessary for making R able to zip files
-#Don't know if it's needed for web deployment
+#Seems necessary for making R able to zip files when run locally. Allows R to
+#access Window's zipping abilities
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:\\Rtools\\bin", sep = ";"))
 
 #Maximum individual file size that can be uploaded is 35 MB
@@ -82,16 +82,32 @@ renameOperation <- function(operation) {
   }
 }
 
-
-# generate_file_name <- function(stationID, dataType, startDate, endDate) {
-#   filename <- paste("QC_", stationID, "_", dataType, "_", startDate, "_", endDate, ".csv")
-#   
-#   myoutput <-  paste(getwd(), filename, sep = "/")
-#   
-#   # Return File Path
-#   return(myoutput)
-# }
-
+#Deletes the input csvs and output QC csvs and Word reports from the server after each download
+#(actually, after new data are uploaded)
+deleteFiles <- function(directory, inputFiles) {
+  
+  # #Lists the paths and names of the input csvs
+  csvsInputsToDelete <- substring(list.files(path = directory, pattern = "QC.*csv", full.names = FALSE), 4)
+  csvsInputsToDelete <- paste(directory, csvsInputsToDelete, sep="/")
+  
+  #Lists all the output csvs and QC Word documents on the server from QCRaw 
+  csvsOutputsToDelete <- list.files(path = directory, pattern = "QC.*csv", full.names = TRUE)
+  docxOutputsToDelete <- list.files(path = directory, pattern = ".*docx", full.names = TRUE)
+  pdfOutputsToDelete <- list.files(path = directory, pattern = ".*pdf", full.names = TRUE)
+  logOutputsToDelete <- list.files(path = directory, pattern = ".*tab", full.names = TRUE)
+  inputsToDelete <- paste(directory, inputFiles, sep="/")
+   
+  # print(inputFiles)
+  # print(inputsToDelete)
+  # print(csvsInputsToDelete)
+  
+  #Actually deletes the files
+  file.remove(csvsOutputsToDelete)
+  file.remove(docxOutputsToDelete)
+  file.remove(pdfOutputsToDelete)
+  file.remove(logOutputsToDelete)
+  file.remove(csvsInputsToDelete)
+}
 
 
 
