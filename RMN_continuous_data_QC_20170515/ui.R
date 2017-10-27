@@ -70,7 +70,7 @@ shinyUI(
         )
         ,br()
         ,br()
-        
+         
         #Only shows the "Download" button after the process has run
         ,tags$div(title="Click to download your data",
                   uiOutput('ui.downloadData')

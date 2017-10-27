@@ -96,11 +96,7 @@ deleteFiles <- function(directory, inputFiles) {
   pdfOutputsToDelete <- list.files(path = directory, pattern = ".*pdf", full.names = TRUE)
   logOutputsToDelete <- list.files(path = directory, pattern = ".*tab", full.names = TRUE)
   inputsToDelete <- paste(directory, inputFiles, sep="/")
-   
-  # print(inputFiles)
-  # print(inputsToDelete)
-  # print(csvsInputsToDelete)
-  
+
   #Actually deletes the files
   file.remove(csvsOutputsToDelete)
   file.remove(docxOutputsToDelete)
@@ -108,58 +104,3 @@ deleteFiles <- function(directory, inputFiles) {
   file.remove(logOutputsToDelete)
   file.remove(csvsInputsToDelete)
 }
-
-
-
-
-######Potentially useful code scraps
-# #Populates fields in the sidebar with the earliest and latest dates in the input spreadsheet
-# output$dates <- renderUI({
-#   
-#   #Makes it so the sidebar doesn't show an error just because dates haven't been selected
-#   inFile <- input$file1
-#   if (is.null(inFile))
-#     return(NULL)
-#   
-#   #creates a copy of the input spreadsheet. Referred to later.
-#   measurements <- datasetInput()
-#   
-#   #Identifies the column number which has the dates 
-#   #based on the user's input of the name of the date field
-#   inDates <- input$dateField
-#   dateColNumb <- which(colnames(measurements)==inDates)
-#   
-#   #creates minimum and maximum dates from the user-indicated date field
-#   dates <- as.Date(datasetInput()[,dateColNumb], format = "%m/%d/%Y")
-#   minval <- min(dates)
-#   maxval <- max(dates)
-#   
-#   #Actually populates the user interface sidebar with the selected dates
-#   dateRangeInput("expDateRange", label = "Choose experiment time-frame:",
-#                  start = minval, end = maxval,
-#                  min = minval, max = maxval,
-#                  separator = " - ", format = "yyyy-mm-dd",
-#                  weekstart = 1
-#   )
-# })
-
-# #Establishes the input spreadsheet. datasetInput is referred to in later sections.
-# datasetInput <- reactive({
-#   inFile <- input$selectedFiles
-#   if (is.null(inFile))
-#     return(NULL)
-#   read.csv(inFile$datapath, header=TRUE)
-# })
-
-# #Prints the first four lines of the input spreadsheet. For testing purposes.
-# output$contents <- renderTable({
-#   # input$selectedFiles will be NULL initially. After the user selects
-#   # and uploads a file, it will be a data frame with 'name',
-#   # 'size', 'type', and 'datapath' columns. The 'datapath'
-#   # column will contain the local filenames where the data can
-#   # be found.
-#   inFile <- input$selectedFiles
-#       if (is.null(inFile))
-#     return(NULL)
-#   head(read.csv(inFile$datapath),4)
-# })

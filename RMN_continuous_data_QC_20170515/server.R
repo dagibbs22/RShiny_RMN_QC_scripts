@@ -143,9 +143,9 @@ shinyServer(function(input, output, session) {
     #that ContDataQC() understands
     operation <- renameOperation(input$Operation)
     
-    #Renames the input and output folder objects
-    inputFolder <- input$inputDir
-    outputFolder <- input$outputDir
+    # #Renames the input and output folder objects
+    # inputFolder <- input$inputDir
+    # outputFolder <- input$outputDir
     
     #Creates a data.frame for the R console output of the ContDataQC() script
     console$disp <- data.frame(consoleOutput = character())
@@ -173,8 +173,9 @@ shinyServer(function(input, output, session) {
                         #Runs aggregation part of ContDataQC() on the input files
                         ContDataQC(operation, 
                         # fun.myDir.import = inputFolder,
+                        # fun.myDir.export = outputFolder,
                         fun.myDir.import = getwd(),
-                        fun.myDir.export = outputFolder,
+                        fun.myDir.export = getwd(),
                         fun.myFile = fileNameVector
                         )
         )
@@ -215,9 +216,9 @@ shinyServer(function(input, output, session) {
                           #Runs ContDataQC() on an individual file
                           ContDataQC(operation,
                           # fun.myDir.import = inputFolder,
+                          # fun.myDir.export = outputFolder,
                           fun.myDir.import = getwd(),
                           fun.myDir.export = getwd(),
-                          # fun.myDir.export = outputFolder,
                           fun.myFile = fileName
                           )
           )
@@ -251,53 +252,74 @@ shinyServer(function(input, output, session) {
     downloadButton("downloadData", "Download")
   })
   
-  observe({
   #Zips the output files and makes them accessible for downloading by the user
-  ####Modified from https://stackoverflow.com/questions/26881368/shiny-download-zip-archive 
-  output$downloadData <- downloadHandler(
+  observe({
     
-    #Names the zip file
-    filename <- function() {
-      paste("zipOutput", Sys.Date(), "zip", sep=".")
-    },
+    operation <- renameOperation(input$Operation)
     
-    #Zips the output files
-    content <- function(fname) {
-      #For running on the local machine
-      # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.csv")
-      # files2zip <- dir(input$outputDir, full.names = TRUE, pattern=" *.docx")
+    if (operation == "QCRaw"){
       
-      #Lists only the csv and docx files on the server
-      zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
-      zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
-      files2zip <- c(zip.csv, zip.docx)
-      
-      #Zips the files
-      zip(zipfile = fname, files = files2zip)
+      output$downloadData <- downloadHandler(
+        
+        #Names the zip file
+        filename <- function() {
+          paste("zipOutput", Sys.Date(), "zip", sep=".")
+        },
+        
+        #Zips the output files
+        content <- function(fname) {
+  
+          #Lists only the csv and docx files on the server
+          zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
+          zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
+          zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
+          files2zip <- c(zip.csv, zip.docx, zip.log)
+          
+          #Zips the files
+          zip(zipfile = fname, files = files2zip)
+        }
+        ,contentType = "application/zip"
+      )
     }
-    ,contentType = "application/zip"
-  )
-  deleteFiles(getwd(), UserFile_Name())
+    
+    if (operation == "Aggregate"){
+      
+      output$downloadData <- downloadHandler(
+        
+        #Names the zip file
+        filename <- function() {
+          paste("zipOutput", Sys.Date(), "zip", sep=".")
+        },
+        
+        #Zips the output files
+        content <- function(fname) {
+          
+          #Lists only the csv and docx files on the server
+          zip.csv <- dir(getwd(), full.names=TRUE, pattern="DATA.*csv")
+          zip.docx <- dir(getwd(), full.names=TRUE, pattern="DATA.*docx")
+          zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
+          files2zip <- c(zip.csv, zip.docx, zip.log)
+          
+          #Zips the files
+          zip(zipfile = fname, files = files2zip)
+        }
+        ,contentType = "application/zip"
+      )
+    }
+    
+    #Deletes the input and output files to keep the server from getting clogged
+    deleteFiles(getwd(), UserFile_Name())
+  
   })
   
 
-  #Removes the QC files from the server after the Shiny session ends 
-  #modified from https://groups.google.com/forum/#!topic/shiny-discuss/2WSKDO3Rljo
+  # #Removes the QC files from the server after the Shiny session ends 
+  # #Not activating because it's not necessary now; the above deletion code works fine
+  # #modified from https://groups.google.com/forum/#!topic/shiny-discuss/2WSKDO3Rljo
   # session$onSessionEnded(function(){
-  # if(!is.null(allFiles())){
-  
-    # csvsOutputsToDelete <- list.files(path = directory, pattern = "QC.*csv", full.names = TRUE)
-    # docxOutputsToDelete <- list.files(path = directory, pattern = ".*docx", full.names = TRUE)
-    # pdfOutputsToDelete <- list.files(path = directory, pattern = ".*pdf", full.names = TRUE)
-    # logOutputsToDelete <- list.files(path = directory, pattern = ".*tab", full.names = TRUE)
-    # inputsToDelete <- paste(directory, inputFiles, sep="/")
-    # 
-    # #Actually deletes the files
-    # file.remove(csvsOutputsToDelete)
-    # file.remove(docxOutputsToDelete)
-    # file.remove(pdfOutputsToDelete)
-    # file.remove(logOutputsToDelete)
-  #  }
+  # 
+  #   deleteFiles(getwd(), UserFile_Name())
+  #   
   # })
   
   
