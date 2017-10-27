@@ -255,15 +255,21 @@ shinyServer(function(input, output, session) {
   #Zips the output files and makes them accessible for downloading by the user
   observe({
     
+    #Converts the more user-friendly input operation name to the name
+    #that ContDataQC() understands
     operation <- renameOperation(input$Operation)
     
+    #Formats the download timestamp for the zip file
+    operationTime <- timeFormatter(Sys.time())
+    
+    #Zipping procedures for the output of the QC process
     if (operation == "QCRaw"){
       
       output$downloadData <- downloadHandler(
         
         #Names the zip file
         filename <- function() {
-          paste("zipOutput", Sys.Date(), "zip", sep=".")
+          paste(operation, operationTime, "zip", sep=".")
         },
         
         #Zips the output files
@@ -282,13 +288,14 @@ shinyServer(function(input, output, session) {
       )
     }
     
+    #Zipping procedures for the output of the aggregation process
     if (operation == "Aggregate"){
       
       output$downloadData <- downloadHandler(
         
         #Names the zip file
         filename <- function() {
-          paste("zipOutput", Sys.Date(), "zip", sep=".")
+          paste(operation, operationTime, "zip", sep=".")
         },
         
         #Zips the output files
@@ -296,9 +303,36 @@ shinyServer(function(input, output, session) {
           
           #Lists only the csv and docx files on the server
           zip.csv <- dir(getwd(), full.names=TRUE, pattern="DATA.*csv")
-          zip.docx <- dir(getwd(), full.names=TRUE, pattern="DATA.*docx")
+          zip.docx <- dir(getwd(), full.names=TRUE, pattern=".*docx")
           zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
           files2zip <- c(zip.csv, zip.docx, zip.log)
+          
+          #Zips the files
+          zip(zipfile = fname, files = files2zip)
+        }
+        ,contentType = "application/zip"
+      )
+    }
+    
+    #Zipping procedures for the output of the SummaryStats process
+    if (operation == "SummaryStats"){
+      
+      output$downloadData <- downloadHandler(
+        
+        #Names the zip file
+        filename <- function() {
+          paste(operation, operationTime, "zip", sep=".")
+        },
+        
+        #Zips the output files
+        content <- function(fname) {
+          
+          #Lists only the csv and docx files on the server
+          zip.csv_DV <- dir(getwd(), full.names=TRUE, pattern="DV.*csv")
+          zip.csv_STATS <- dir(getwd(), full.names=TRUE, pattern="STATS.*csv")
+          zip.pdf <- dir(getwd(), full.names=TRUE, pattern=".*pdf")
+          zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
+          files2zip <- c(zip.csv_DV, zip.csv_STATS, zip.pdf, zip.log)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
@@ -347,15 +381,6 @@ shinyServer(function(input, output, session) {
   })
   
 
-  
-  
-  # #Clears all inputs from app
-  # observeEvent(input$reset, {
-  #   allfiles()$datapath <- NULL
-  # })
-  
-  
-  
   ###Shows all files on the server
   #For debugging only: shows the files on the server
   onServerTable <- reactive({
@@ -369,15 +394,14 @@ shinyServer(function(input, output, session) {
   })
   
 
-  #FOR TESTING. To make sure text is being interpreted properly.
+  #FOR TESTING. 
   output$testText <- renderText({
     
     inFile <- input$selectedFiles
     if (is.null(inFile))
       return(NULL)
     
-    # paste("This is for more testing:", input$inputDir, input$outputDir)
-    paste("This is for more testing:", getwd())
+    paste("This is for testing:", getwd())
   })
   
 }

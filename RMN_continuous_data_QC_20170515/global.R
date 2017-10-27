@@ -82,6 +82,14 @@ renameOperation <- function(operation) {
   }
 }
 
+#Formats the date-time of the output file download 
+timeFormatter <- function(time) {
+  time2 <- gsub(":", "_", time)
+  time3 <- gsub("-", "", time2)
+  time4 <- gsub(" ", "_", time3)
+  return(time4)
+}
+
 #Deletes the input csvs and output QC csvs and Word reports from the server after each download
 #(actually, after new data are uploaded)
 deleteFiles <- function(directory, inputFiles) {
