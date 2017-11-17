@@ -1,6 +1,6 @@
 shinyUI(
  
-  navbarPage("Continuous data QC summary and statistics",
+  navbarPage("Continuous data QC, summary, and statistics- PRELIMINARY WEBSITE",
                     
   tabPanel("Tool background and data template",
            
@@ -8,48 +8,97 @@ shinyUI(
              column(5,
                     h3("Background", align = "center"),
                     br(),
-                    p("The Regional Monitoring Networks (RMNs) are networks of long-term stream monitoring sites. 
-                      They are a partnership between the U.S. EPA and states, tribes, and other local organizations.
+                    p("The Regional Monitoring Networks (RMNs) are groups of long-term stream monitoring sites. 
+                      They are a partnership between the U.S. EPA, other federal agencies, states, tribes, 
+                      and other local organizations.
                       Their goal is to establish a baseline for stream temperature, hydrology, and macroinvertebrate communities
-                      in streams across the US and characterize natural variation and long-term trends. Although the types of 
-                      sites included in the RMNs vary throughout the U.S., many of the sites are high-quality, high-gradient 
-                      reference sites."),
-                    br(),
-                    p("All RMN sites use the same continuous temperature and hydrology measurement protocols. This website
-                      allows RMN partners to QC their continuous stream data in a standard way. It accepts air and water temperature
-                      and pressure, water level, and stream flow measurements. This website performs QC checks on the input data but
-                      it is up to the user to decide how to respond to any wrong or suspect values. In addition to running data
-                      through QC checks, this app can also combine multiple QCed spreadsheets from different time periods at individual
-                      sites (e.g., air/water temperature spreadsheets from 2/8/14-4/15/14 and 4/16/14-7/17/14) and combine QCed 
-                      spreadsheets with different parameters from the same time period at the same site (e.g.,
-                      separate air and water temperature spreadsheets from 7/1/15 to 9/30/15). Finally, this app creates reports on and 
-                      graphs of annual, seasonal, monthly, and daily variation in the input parameters."),
-                    br(),
+                      in streams across the US and characterize natural variation and long-term trends. 
+                      Although the types of sites included in the RMNs vary throughout the U.S., many of the sites are 
+                      high-quality, high-gradient reference sites."),
                     p("For more information on the RMNs, please refer to ", 
                       tags$a(href="https://cfpub.epa.gov/ncea/global/recordisplay.cfm?deid=307973", "the RMN report.", target="_blank")),
-                    p("If you have questions about the RMNS or this tool, please contact bierwagen.britta@epa.gov or gibbs.david@epa.gov.")
+                    br(),
+                    p("The same protocols are being used across RMN sites to collect automated water temperature measurements 
+                      at 15 or 30 minute intervals (continuous data). 
+                      Some sites also collect water level or flow measurements at the same intervals."),
+                    br(),
+                    p("This website allows you to perform three operations on your continuous stream data:"),
+                    p("1. QC raw data. 
+                      Using this website, all RMN partners can QC their continuous stream data in a standardized way without having
+                      to download any programs to their computer.  
+                      It accepts air and water temperature and pressure, sensor depth, and stream flow measurements. 
+                      It performs four checks on each input parameter: unrealistic values, spikes, fast rates of change, and flat values.
+                      Although it performs QC checks on the data you input data, it is up to you to decide how to respond to any erroneous 
+                      or suspect values. 
+                      Each value can pass, be flagged as suspect (S), or be flagged as failing (F)."),
+                    p("2. Aggregate QCed data by date or by data type. 
+                      By date: It can combine separate QCed temperature spreadsheets from the same site with the same
+                      parameters covering different time periods (e.g., combine 2/8/14-4/15/14 and 4/16/14-7/17/14 into a single 
+                      spreadsheet covering 2/8/14-7/7/14). 
+                      By parameter: It can combine QCed spreadsheets with different parameters from the same time period at the same site 
+                      into a multi-parameter spreadsheet (e.g., separate air and water temperature spreadsheets from 7/1/15 to 9/30/15 
+                      into an air-water spreadsheet over that same time period)."),
+                    p("3. Produce summary statistics and plots of QCed data. It summarizes data by day, month, season, year, mean,
+                      exceedance, and more."),
+                    p("NOTE: more features will be added to the website over time."),
+                    br(),
+                    p("This website allows all RMN partners to QC their continuous stream data in a standardized way without having
+                      to download any programs to their computer.  
+                      It accepts air and water temperature and pressure, sensor depth, and stream flow measurements. 
+                      It performs QC checks on the input data but it is up to you to decide how to respond to any erroneous or suspect 
+                      values."), 
+                    br(),
+                    p("If you have questions about the RMNs or this tool, please contact bierwagen.britta@epa.gov or gibbs.david@epa.gov.
+                      The R code underlying the data processing (package ContDataQC) was written by Erik Leppo at Tetra Tech, Inc. 
+                      The package is available for download from GitHub for running on your computer within R 
+                      (repo 'leppott/ContDataQC')."),
+                    br(),
+                    p("NOTE: This website is under development. New versions will be released periodically. E-mail the above contacts to
+                      find out if there is a new version available (at a different link).")
                     
              ),
              
              column(5, offset = 1,
-                    h3("Directions", align = "center"),
+                    h3("Directions for running the QC process", align = "center"),
                     br(),
-                    p("In order for this QC website to correctly process your continuous data, you need it formatted 
-                      in a specific way. Download a template csv below to help with this. The template has a few sample rows 
-                      of data in it; delete these and replace them with your own, making sure you use the same formats.
-                      Be very careful to format the dates correctly; the QC process is very particular about date formats."),
-                    downloadButton("downloadTemplate","Download continuous data template"),
-                    br(),
-                    br(),
-                    p("Input files should be named as follows: SITENAME_DATATYPE_STARTDATE_ENDDATE.csv. The site name
-                      should match the site name in the input files. Data types are as follows: A (air), W (water), G (flow gage), 
+                    p("1. Convert all the spreadsheets you will upload to this website into csvs."),
+                    p("2. Name your input files as follows: SITENAME_DATATYPE_STARTDATE_ENDDATE.csv. The site name
+                      should match the site name in the input files. Data types are as follows: A (air), W (water), G (flow), 
                       AW, AG, WG, and AWG. Start and end dates should match the dates in the input files and have the format
                       YYYYMMDD (e.g., 20151203). Some example input file names are: 097_A_20150305_20150630.csv, 
                       GOG12F_AW_20130426_20130725.csv, and BE92_AWG_20150304_20151231.csv."),
-                    p("For more information on the input file requirements, please visit the RMN Sharepoint or ftp sites."),
+                    p("3.	Download the template using the “Download continuous data template” button on the 
+                      “Tool background and data template” tab of the website. In order for this website to 
+                      correctly process your continuous data, you need to format it in a specific way."),
+                    downloadButton("downloadTemplate","Download continuous data template"),
                     br(),
-                    p("Once you have your data in the correct format, proceed to the next tab to upload your files, process them,
-                      and download them.")
+                    br(),
+                    p("4. Copy the appropriate column headers from the template into the spreadsheets you want 
+                      the website to process. The only required fields to run the QC process are date-time, station ID, 
+                      and at least one measurement column (air, water, sensor depth, or flow). It does not matter what
+                      order the columns are in within your spreadsheets."),
+                    p("5. Verify that the data in your spreadsheets are in the same formats as the data in 
+                      the template spreadsheet (e.g., that the values in 'Date Time' are formatted the same
+                      as in the template). The website will not work on your data if the formats are 
+                      incorrect."),
+                    p("6. Delete any extraneous columns from your spreadsheets."),
+                    p("7. Delete any extra header rows besides the ones with the field names. Delete any rows at 
+                      the bottom of the spreadsheets that show termination of the log."),
+                    p("8. Upload your files to the website using the 'Browse' button on the next tab. Once the
+                      files are uploaded, a 'Run process' button should appear below the upload box."),
+                    p("Make sure that the 'QC raw data' option is selected in the 'Choose operation to perform'
+                      drop-down on the next tab."),
+                    p("10. Verify that the files are being interpreted correctly in the table."),
+                    p("11. Click the 'Run process' button on the next tab. A progress bar will appear in the
+                      bottom-right of the tab. It will advance as each file is completed. Thus, if you 
+                      upload three files, it will wait at 0%, jump to 33%, jump tp 66%, and then jump to 100%."),
+                    p("12. Once the process is completed, a 'Download' button will appear below the 'Run process'
+                      button. Click the button to download a zip file of all output files (spreadsheets and QC
+                      reports). Where the files will download on your computer depends on the configuration 
+                      of your internet browser."),
+                    br(),
+                    br(),
+                    p("For more information on the input file requirements, please visit the RMN Sharepoint or ftp sites.")
              )
            )
   ),
@@ -124,13 +173,18 @@ shinyUI(
            tableOutput("logText"),
            tags$b(textOutput("logTextMessage"))
 
-           ##For debugging only: lists all files on the server
-           ,br()
-           ,br()
-           ,br()
-           ,br()
-           ,tableOutput("serverTable")
+           # ##For debugging only: lists all files on the server
+           # ,br()
+           # ,br()
+           # ,br()
+           # ,br()
+           # ,tableOutput("serverTable")
   ),
+  
+  tabPanel("Download USGS gage data",
+           h2("Download USGS gage data here")
+           ,br()
+           ),
   
   tabPanel("FAQ",
            h2("A growing list of frequently asked questions")
@@ -181,7 +235,7 @@ shinyUI(
               (e.g., if you run the QC process on files you've already QCed, you'll get output
               files that start with the name 'QC-QC_'")
            ,br()
-           ,p("Q: I've gotta QC data on the go. Can I use this site on my phone?")
+           ,p("Q: I've gotta QC my data on the go. Can I use this site on my phone?")
            ,p("A: Mobile use of this app is untested. Please let us know how it goes.")
   )
   

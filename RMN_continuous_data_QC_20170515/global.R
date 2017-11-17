@@ -1,6 +1,8 @@
 library(shiny) 
 library(shinyFiles)
 library(devtools)
+library(rmarkdown)
+library(rsconnect)
 #install_github("leppott/ContDataQC")
 library(ContDataQC)
 library(zoo) 
@@ -13,7 +15,7 @@ Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:\\Rtools\\bin", sep = ";"))
 options(shiny.maxRequestSize=70*1024^2)
 
 #Names the data template spreadsheet
-dataTemplate <- read.csv(file="continuous_data_template.csv", header=TRUE)
+dataTemplate <- read.csv(file="continuous_data_template_2017_11_15.csv", header=TRUE)
  
 #Function to parse out the station ID, data type, and starting and ending
 #dates from the input file name.
@@ -100,14 +102,14 @@ deleteFiles <- function(directory, inputFiles) {
   
   #Lists all the output csvs and QC Word documents on the server from QCRaw 
   csvsOutputsToDelete <- list.files(path = directory, pattern = "QC.*csv", full.names = TRUE)
-  docxOutputsToDelete <- list.files(path = directory, pattern = ".*docx", full.names = TRUE)
+  htmlOutputsToDelete <- list.files(path = directory, pattern = ".*html", full.names = TRUE)
   pdfOutputsToDelete <- list.files(path = directory, pattern = ".*pdf", full.names = TRUE)
   logOutputsToDelete <- list.files(path = directory, pattern = ".*tab", full.names = TRUE)
   inputsToDelete <- paste(directory, inputFiles, sep="/")
 
   #Actually deletes the files
   file.remove(csvsOutputsToDelete)
-  file.remove(docxOutputsToDelete)
+  file.remove(htmlOutputsToDelete)
   file.remove(pdfOutputsToDelete)
   file.remove(logOutputsToDelete)
   file.remove(csvsInputsToDelete)

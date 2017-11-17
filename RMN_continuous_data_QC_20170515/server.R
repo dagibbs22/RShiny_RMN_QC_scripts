@@ -176,7 +176,8 @@ shinyServer(function(input, output, session) {
                         # fun.myDir.export = outputFolder,
                         fun.myDir.import = getwd(),
                         fun.myDir.export = getwd(),
-                        fun.myFile = fileNameVector
+                        fun.myFile = fileNameVector,
+                        fun.myReport.format = "html"
                         )
         )
         
@@ -219,7 +220,8 @@ shinyServer(function(input, output, session) {
                           # fun.myDir.export = outputFolder,
                           fun.myDir.import = getwd(),
                           fun.myDir.export = getwd(),
-                          fun.myFile = fileName
+                          fun.myFile = fileName,
+                          fun.myReport.format = "html"
                           )
           )
 
@@ -275,11 +277,11 @@ shinyServer(function(input, output, session) {
         #Zips the output files
         content <- function(fname) {
   
-          #Lists only the csv and docx files on the server
+          #Lists only the csv and html files on the server
           zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
-          zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
+          zip.html <- dir(getwd(), full.names=TRUE, pattern="QC.*html")
           zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
-          files2zip <- c(zip.csv, zip.docx, zip.log)
+          files2zip <- c(zip.csv, zip.html, zip.log)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
