@@ -8,21 +8,27 @@ shinyUI(
              column(5,
                     h3("Background", align = "center"),
                     br(),
-                    p("The Regional Monitoring Networks (RMNs) are groups of long-term stream monitoring sites. 
+                    p("The Regional Monitoring Networks (RMNs) are groups of long-term stream monitoring sites designed 
+                      to detect changes in stream health over large areas and long time periods. 
+                      Their goal is to establish a baseline for stream temperature, hydrology, and macroinvertebrate communities
+                      in streams across the US and characterize natural variation and long-term trends.
                       They are a partnership between the U.S. EPA, other federal agencies, states, tribes, 
                       and other local organizations.
-                      Their goal is to establish a baseline for stream temperature, hydrology, and macroinvertebrate communities
-                      in streams across the US and characterize natural variation and long-term trends. 
                       Although the types of sites included in the RMNs vary throughout the U.S., many of the sites are 
                       high-quality, high-gradient reference sites."),
                     p("For more information on the RMNs, please refer to ", 
                       tags$a(href="https://cfpub.epa.gov/ncea/global/recordisplay.cfm?deid=307973", "the RMN report.", target="_blank")),
                     br(),
-                    p("The same protocols are being used across RMN sites to collect automated water temperature measurements 
-                      at 15 or 30 minute intervals (continuous data). 
+                    p("One component of the RMN program is the use of standardized methods across sites to
+                      improve statistical power in detecting regional changes in streams.
+                      To this end, the same protocols are being used across RMN sites to collect automated 
+                      water temperature measurements at 15 or 30 minute intervals (continuous data). 
                       Some sites also collect water level or flow measurements at the same intervals."),
-                    br(),
-                    p("This website allows you to perform three operations on your continuous stream data:"),
+                    br(),          
+                    p("This website performs three operations on your continuous stream data,
+                      as well as helping users download data from USGS gages.
+                      Collectively, these operations allow all RMN partners to QC and summarize their continuous stream data in 
+                      a standardized way without having to download any programs to their computer."),
                     p("1. QC raw data. 
                       Using this website, all RMN partners can QC their continuous stream data in a standardized way without having
                       to download any programs to their computer.  
@@ -38,28 +44,26 @@ shinyUI(
                       By parameter: It can combine QCed spreadsheets with different parameters from the same time period at the same site 
                       into a multi-parameter spreadsheet (e.g., separate air and water temperature spreadsheets from 7/1/15 to 9/30/15 
                       into an air-water spreadsheet over that same time period)."),
-                    p("3. Produce summary statistics and plots of QCed data. It summarizes data by day, month, season, year, mean,
+                    p("3. Produce summary statistics and plots of QCed data. 
+                      It summarizes data by day, month, season, year, mean,
                       exceedance, and more."),
-                    p("NOTE: more features will be added to the website over time."),
-                    br(),
-                    p("This website allows all RMN partners to QC their continuous stream data in a standardized way without having
-                      to download any programs to their computer.  
-                      It accepts air and water temperature and pressure, sensor depth, and stream flow measurements. 
-                      It performs QC checks on the input data but it is up to you to decide how to respond to any erroneous or suspect 
-                      values."), 
+                    p("4. Download USGS gage data. You can input USGS gage IDs and a date range and the website will 
+                      download a separate csv for each gage over that time period. 
+                      See the 'Download USGS gage data' tab for more information."),
                     br(),
                     p("If you have questions about the RMNs or this tool, please contact bierwagen.britta@epa.gov or gibbs.david@epa.gov.
                       The R code underlying the data processing (package ContDataQC) was written by Erik Leppo at Tetra Tech, Inc. 
                       The package is available for download from GitHub for running on your computer within R 
                       (repo 'leppott/ContDataQC')."),
                     br(),
-                    p("NOTE: This website is under development. New versions will be released periodically. E-mail the above contacts to
-                      find out if there is a new version available (at a different link).")
+                    p(paste("NOTE: This website is under development. New versions will be released periodically. E-mail the above contacts to
+                      find out if there is a new version available at a different link. 
+                      This version was last updated on "), Sys.Date())
                     
              ),
              
              column(5, offset = 1,
-                    h3("Directions for running the QC process", align = "center"),
+                    h3("Instructions for running the QC process", align = "center"),
                     br(),
                     p("1. Convert all the spreadsheets you will upload to this website into csvs."),
                     p("2. Name your input files as follows: SITENAME_DATATYPE_STARTDATE_ENDDATE.csv. The site name
@@ -103,7 +107,7 @@ shinyUI(
            )
   ),
            
-  tabPanel("Tool interface",
+  tabPanel("QC tool interface",
 
     # Sidebar with inputs for app
     sidebarLayout(
@@ -167,24 +171,62 @@ shinyUI(
     )
   ),
   
+  tabPanel("Download USGS gage data",
+           fluidRow(
+             column(5, 
+                h3("Instructions", align = "Center"),
+                br(),
+                p("You can download data from USGS gages on this tab."),
+                br(),
+                p("1. Enter as many USGS station IDs as you like separated by 
+                  commas and spaces (e.g., 01187300, 01493000, 01639500)."),
+                p("2. Enter a starting and ending date for which data will
+                  be retrieved for each station; the same date range
+                  will be used for every station."),
+                p("3. Click the 'Retrieve USGS data' button. 
+                  A progress bar will appear in the bottom-right of the tab. 
+                  It will advance as each file is completed. 
+                  Thus, if you select three stations, it will wait at 0%, 
+                  jump to 33%, jump tp 66%, and then jump to 100%."),
+                p("4. After data retrieval completes, a download button 
+                  will appear. Click the button to download a zip file of all station records.
+                  Where the files will download on your computer depends on the configuration 
+                  of your internet browser.")
+             ),
+             
+             column(5, offset = 1,
+                h3("Download USGS gage data here")
+                ,br()
+                ,textInput("USGSsite", "USGS site ID(s) (separated by commas and spaces)")
+                ,textInput("startDate", "Starting date (YYYY-MM-DD)")
+                ,textInput("endDate", "Ending date (YYYY-MM-DD)")
+                ,br()
+                ,actionButton("getUSGSData", "Retrieve USGS data")
+                ,br()
+                ,br()
+                    
+                #Only shows the "Download" button after the process has run
+                ,tags$div(title="Click to download your USGS gage data",
+                    uiOutput('ui.downloadUSGSData'))      
+             )
+           )
+  ),
+  
   tabPanel("R console output",
-           p("This tab shows messages output by the tool. If there are any errors when the tool runs, please copy
+           p("This tab shows messages output by the QC, aggregating, summarizing, and USGS data retrieval processes. 
+             If there are any errors when the tool runs, please copy
              the messages and send them and your input files to the contacts listed on the tool background tab."),
            tableOutput("logText"),
+           tableOutput("logTextUSGS"),
            tags$b(textOutput("logTextMessage"))
 
-           # ##For debugging only: lists all files on the server
+           ## For debugging only: lists all files on the server
            # ,br()
            # ,br()
            # ,br()
            # ,br()
            # ,tableOutput("serverTable")
   ),
-  
-  tabPanel("Download USGS gage data",
-           h2("Download USGS gage data here")
-           ,br()
-           ),
   
   tabPanel("FAQ",
            h2("A growing list of frequently asked questions")

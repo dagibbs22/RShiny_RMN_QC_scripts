@@ -126,13 +126,16 @@ shinyServer(function(input, output, session) {
   
   ###Runs the selected process
   #Shows the "Run process" button after the data are uploaded
-  output$ui.runProcess <- renderUI({
+  output$ui.runProcess <- renderUI({88
     if (is.null(allFiles())) return()
       actionButton("runProcess", "Run process")
   })
   
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
+    
+    #Deletes the input and output files to keep the server from getting clogged
+    deleteFiles(getwd(), UserFile_Name())
 
     #Moves the user-selected input files from the default upload folder to Shiny's working directory
     copy.from <- file.path(UserFile_Path())
@@ -142,11 +145,7 @@ shinyServer(function(input, output, session) {
     #Converts the more user-friendly input operation name to the name
     #that ContDataQC() understands
     operation <- renameOperation(input$Operation)
-    
-    # #Renames the input and output folder objects
-    # inputFolder <- input$inputDir
-    # outputFolder <- input$outputDir
-    
+
     #Creates a data.frame for the R console output of the ContDataQC() script
     console$disp <- data.frame(consoleOutput = character())
     
@@ -165,15 +164,13 @@ shinyServer(function(input, output, session) {
         fileNameVector <-  as.vector(UserFile_Name())
         
         #Changes the status bar to say that aggregation is occurring
-        incProgress(0, detail = paste("Aggregating files"))
+        incProgress(0, detail = paste("Aggregating ", length(fileNameVector), " files"))
         
         #Saves the R console output of ContDataQC()
         consoleRow <- capture.output(
           
                         #Runs aggregation part of ContDataQC() on the input files
                         ContDataQC(operation, 
-                        # fun.myDir.import = inputFolder,
-                        # fun.myDir.export = outputFolder,
                         fun.myDir.import = getwd(),
                         fun.myDir.export = getwd(),
                         fun.myFile = fileNameVector,
@@ -193,7 +190,7 @@ shinyServer(function(input, output, session) {
         Sys.sleep(2)
         
         #Names the single column of the R console output data.frame
-        colnames(console$disp) <- c("R console messages for all input files:")
+        colnames(console$disp) <- c(paste("R console messages for ", input$Operation))
         
       }
       
@@ -239,7 +236,7 @@ shinyServer(function(input, output, session) {
         }
         
         #Names the single column of the R console output data.frame
-        colnames(console$disp) <- c("R console output for all input files:")
+        colnames(console$disp) <- c(paste("R console messages for process '", input$Operation, "'"))
 
       }
 
@@ -279,9 +276,10 @@ shinyServer(function(input, output, session) {
   
           #Lists only the csv and html files on the server
           zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
+          zip.docx <- dir(getwd(), full.names=TRUE, pattern=".*docx")
           zip.html <- dir(getwd(), full.names=TRUE, pattern="QC.*html")
           zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
-          files2zip <- c(zip.csv, zip.html, zip.log)
+          files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
@@ -306,8 +304,9 @@ shinyServer(function(input, output, session) {
           #Lists only the csv and docx files on the server
           zip.csv <- dir(getwd(), full.names=TRUE, pattern="DATA.*csv")
           zip.docx <- dir(getwd(), full.names=TRUE, pattern=".*docx")
+          zip.html <- dir(getwd(), full.names=TRUE, pattern=".*html")
           zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
-          files2zip <- c(zip.csv, zip.docx, zip.log)
+          files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
@@ -342,47 +341,144 @@ shinyServer(function(input, output, session) {
         ,contentType = "application/zip"
       )
     }
-    
-    #Deletes the input and output files to keep the server from getting clogged
-    deleteFiles(getwd(), UserFile_Name())
+  })
+
   
+  ###For getting USGS gage data
+  #Runs the gage data extraction process
+  observeEvent(input$getUSGSData, {
+    
+    #Deletes any files on server before creating new ones to prevent server
+    #from getting clogged
+    deleteFiles(getwd(), UserFile_Name())
+    
+    #Converts the string of USGS sites into a vector of USGS sites
+    USGSsiteVector <- USGSsiteParser(input$USGSsite)
+    
+    #Creates a data.frame for the R console output of the ContDataQC() script
+    consoleUSGS$disp <- data.frame(consoleOutputUSGS = character())
+    
+    #A short pause before the operation begins
+    Sys.sleep(2)
+    
+    withProgress(message = paste("Getting USGS data"), value = 0, {
+    
+      for(i in 1:length(USGSsiteVector)) {
+
+        #Changes the status bar to say that aggregation is occurring
+        incProgress(0, detail = paste("Retrieving records for site ", USGSsiteVector[i]))
+      
+        #Saves the R console output of ContDataQC()
+        consoleRowUSGS <- capture.output(
+        
+          #Actually gets the gage data from the USGS NWIS system
+          ContDataQC(
+                  myData.Operation        <- "GetGageData",
+                  myData.SiteID           <- USGSsiteVector[i],
+                  myData.Type             <- "Gage",
+                  myData.DateRange.Start  <- input$startDate,
+                  myData.DateRange.End    <- input$endDate,
+                  myDir.import            <- "",
+                  myDir.export            <- getwd()
+          )
+          
+        )
+        
+        #Appends the R console output generated from that input file to the 
+        #console output data.frame
+        consoleRowUSGS <- data.frame(consoleRowUSGS)
+        consoleUSGS$disp <- rbind(consoleUSGS$disp, consoleRowUSGS)
+        
+        #Fills in the progress bar once the operation is complete
+        incProgress(1/length(USGSsiteVector), detail = paste("Retrieved records for site ", USGSsiteVector[i]))
+        Sys.sleep(1)
+
+      }
+      
+    })
+    
+    #Pauses the progress bar once it's done
+    Sys.sleep(2)
+    
+    #Names the single column of the R console output data.frame
+    colnames(consoleUSGS$disp) <- c("R console messages for all USGS data retrievals:")
+    
   })
   
+  #Shows the "Download USGS gage data" button after the selected process is run
+  output$ui.downloadUSGSData <- renderUI({
+    if (is.null(consoleUSGS$disp)) return()
+    downloadButton("downloadUSGSData", "Download USGS gage data")
+  })
+  
+  #Zips and downloads the USGS gage data
+  observe({
+    
+    #Formats the download timestamp for the zip file
+    operationTime <- timeFormatter(Sys.time())
+    
+    #Function for downloading USGS data
+    output$downloadUSGSData <- downloadHandler(
+      
+      #Names the zip file
+      filename <- function() {
+        paste("USGSData",input$USGSsite, operationTime, "zip", sep=".")
+      },
+      
+      #Zips the output files
+      content <- function(fname) {
+        
+        #Lists only the csv and html files on the server
+        zip.csv <- dir(getwd(), full.names=TRUE, pattern=".*Gage.*csv")
+        files2zip <- c(zip.csv)
 
-  # #Removes the QC files from the server after the Shiny session ends 
-  # #Not activating because it's not necessary now; the above deletion code works fine
-  # #modified from https://groups.google.com/forum/#!topic/shiny-discuss/2WSKDO3Rljo
-  # session$onSessionEnded(function(){
-  # 
-  #   deleteFiles(getwd(), UserFile_Name())
-  #   
-  # })
+        #Zips the files
+        zip(zipfile = fname, files = files2zip)
+      }
+      ,contentType = "application/zip"
+    )
+  })
   
   
   ###Shows the R console output text
-  #Shows the output notes from ContDataQC from the R console in R Shiny
+  #Creates separate reactive objects for the QC/Agg/Summ and GetGageData processes
   console <- reactiveValues()
-  
-  #Before running tool, shows a message saying that console output will be displayed
+  consoleUSGS <- reactiveValues()
+
+  #Before any process is run, shows a message saying that console output will be displayed
+  #later (after process is run)
   output$logTextMessage <- renderText({
     
-    if (is.null(console$disp)){
+    if (is.null(console$disp) && is.null(consoleUSGS$disp)){
       
-      beforeRun <- paste("Check here after running process for script messages...")
-        return(beforeRun)
+      beforeRun <- paste("Check here for script messages after running process...")
+      return(beforeRun)
     }
   })
   
-  #Shows the output notes from ContDataQC from the R console
+  #Shows the output notes that the QC/Agg/Summ processes show in the R console
   output$logText <- renderTable({
-
+    
+    #Won't show console text until after the input files are selected 
+    #(i.e., after the process is run)
     if (is.null(input$selectedFiles))
       return(NULL)
-
+    
     return(console$disp)
   })
   
-
+  #Shows the output notes that the GetGageData process shows in the R console
+  output$logTextUSGS <- renderTable({
+    
+    #Won't show console text until after the USGS stations are selected 
+    #(i.e., after the process is run)
+    if (is.null(input$USGSsite))
+      return(NULL)
+    
+    return(consoleUSGS$disp)
+  })
+  
+  
   ###Shows all files on the server
   #For debugging only: shows the files on the server
   onServerTable <- reactive({

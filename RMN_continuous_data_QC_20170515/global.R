@@ -92,6 +92,13 @@ timeFormatter <- function(time) {
   return(time4)
 }
 
+#Converts a string of USGS site IDs (comma delimited)
+#into an array of site IDs for gage data retrieval
+USGSsiteParser <- function(siteIDs) {
+  USGSsiteVector <- unlist(strsplit(siteIDs, split=", "))
+  return(USGSsiteVector)
+}
+
 #Deletes the input csvs and output QC csvs and Word reports from the server after each download
 #(actually, after new data are uploaded)
 deleteFiles <- function(directory, inputFiles) {
@@ -105,6 +112,7 @@ deleteFiles <- function(directory, inputFiles) {
   htmlOutputsToDelete <- list.files(path = directory, pattern = ".*html", full.names = TRUE)
   pdfOutputsToDelete <- list.files(path = directory, pattern = ".*pdf", full.names = TRUE)
   logOutputsToDelete <- list.files(path = directory, pattern = ".*tab", full.names = TRUE)
+  gageOutputsToDelete <- list.files(path = directory, pattern = ".*Gage.*csv", full.names = TRUE)
   inputsToDelete <- paste(directory, inputFiles, sep="/")
 
   #Actually deletes the files
@@ -113,4 +121,5 @@ deleteFiles <- function(directory, inputFiles) {
   file.remove(pdfOutputsToDelete)
   file.remove(logOutputsToDelete)
   file.remove(csvsInputsToDelete)
+  file.remove(gageOutputsToDelete)
 }
