@@ -16,6 +16,75 @@ options(shiny.maxRequestSize=70*1024^2)
 
 #Names the data template spreadsheet
 dataTemplate <- read.csv(file="continuous_data_template_2017_11_15.csv", header=TRUE)
+
+#Extracts properties of the input spreadsheets
+fileParse <- function(inputFile) {
+
+  #Extracts site ID, start and end dates, and record count.
+  #These are all for the first summary table.
+  siteID <- as.character(inputFile$SiteID[2])
+  recordCount <- nrow(inputFile)
+  
+  #Dates are formatted differently for data input to QCRaw and data input
+  #to Aggregate and Summarize (output from QCRaw)
+  if("Flag" %in% substr(colnames(inputFile),1,4)) {
+    startDate <-min(as.Date(inputFile$Date.Time, format = "%Y-%m-%d"))
+    endDate <- max(as.Date(inputFile$Date.Time, format = "%Y-%m-%d"))
+  } 
+  else {
+    startDate <-min(as.Date(inputFile$Date.Time, format = "%m/%d/%Y"))
+    endDate <- max(as.Date(inputFile$Date.Time, format = "%m/%d/%Y"))
+  }
+  
+  #Extracts which parameters are included in the spreadsheet.
+  #These are all for the second summary table
+  #Provides default values (parameter not found).
+  waterTemp <- "Not found"
+  airTemp <- "Not found"
+  waterPressure <- "Not found"
+  airPressure <- "Not found"
+  sensorDepth <- "Not found"
+  gageHeight <- "Not found"
+  flow <- "Not found"
+  
+  #Changes the table's value to "found" if the
+  #paramete is identified
+  if("Water.Temp.C" %in% colnames(inputFile)) {
+    waterTemp <- "Found"
+  }
+  
+  if("Air.Temp.C" %in% colnames(inputFile)) {
+    airTemp <- "Found"
+  }
+  
+  if("Water.P.psi" %in% colnames(inputFile)) {
+    waterPressure <- "Found"
+  }
+  
+  if("Air.BP.psi" %in% colnames(inputFile)) {
+    airPressure <- "Found"
+  }
+  
+  if("Sensor.Depth.ft" %in% colnames(inputFile)) {
+    sensorDepth <- "Found"
+  }
+  
+  if("GageHeight" %in% colnames(inputFile)) {
+    gageHeight <- "Found"
+  }
+  
+  if("Discharge" %in% colnames(inputFile)) {
+    flow <- "Found"
+  }
+
+  #Compiles all spreadsheet properties into a single data.frame
+  siteDF <- data.frame(siteID, startDate, endDate, 
+                recordCount, waterTemp, airTemp, 
+                waterPressure, airPressure, sensorDepth, gageHeight, flow)
+
+  return(siteDF)
+}
+
  
 #Function to parse out the station ID, data type, and starting and ending
 #dates from the input file name.

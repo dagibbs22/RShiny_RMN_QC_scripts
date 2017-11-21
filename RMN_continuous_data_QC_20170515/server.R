@@ -36,91 +36,153 @@ shinyServer(function(input, output, session) {
     return(allFiles()$datapath)
   })
   
+  fileAttribsNull <- reactive({
+    
+    #Column names for the table
+    summColNames <- c("File name", "Station ID", 
+                      "Starting date", "Ending date", 
+                      "Record count", 
+                      "Water temperature", "Air temperature", 
+                      "Water pressure", "Air pressure", 
+                      "Sensor depth", "Gage height", "Flow")
+    
+    #Creates empty table columns
+    fileAttribsNull <- data.frame(filenameNull = c("Awaiting data"), 
+                             stationIDNull = c("Awaiting data"),
+                             startDateNull = c("Awaiting data"),
+                             endDateNull = c("Awaiting data"),
+                             recCountNull = c("Awaiting data"),
+                             waterTempNull = c("Awaiting data"),
+                             airTempNull = c("Awaiting data"),
+                             waterPressureNull = c("Awaiting data"),
+                             airPressureNull = c("Awaiting data"),
+                             sensorDepthNull = c("Awaiting data"),
+                             gageHeightNull = c("Awaiting data"),
+                             flow = c("Awaiting data"))
+    
+    colnames(fileAttribsNull) <- summColNames
+
+    return(fileAttribsNull)
+    
+  })
   
-  ###Creates a summary input table
-  #Header for the input file summary table
-  output$tableHeader <- renderText("Summary table of input files")
+  #Creates a table with attributes of input files
+  fileAttribsFull <- reactive({
+    
+    if(is.null(allFiles())) {
+      return(NULL)
+    }
+
+    #Initializes the empty columns for the table
+    fileAttribsFull <- data.frame(filename = character(), 
+                      stationID = character(),
+                      startDate = as.Date(character()),
+                      endDate = as.Date(character()),
+                      recordCount = as.integer(),
+                      waterTempNull = character(),
+                      airTempNull = character(),
+                      waterPressureNull = character(),
+                      airPressureNull = character(),
+                      sensorDepthNull = character(),
+                      gageHeightNull = character(),
+                      flow = character())
+    
+    #Column names for the table
+    summColNames <- c("File name", "Station ID", 
+                                   "Starting date", "Ending date", 
+                                   "Record count", 
+                                   "Water temperature", "Air temperature", 
+                                   "Water pressure", "Air pressure", 
+                                   "Sensor depth", "Gage height", "Flow")
+    
+    #For each input file, gets the file attributes and adds it to
+    #the table
+    for (i in 1:nrow(allFiles())) {
+      
+      #Calls function that gets file attributes
+      actualData <- read.csv(UserFile_Path()[i], header=TRUE)
+      fileAttribs <- fileParse(actualData)
+
+      #Adds a column with the filename to the file attributes
+      fileAttribs <- cbind(UserFile_Name()[i], fileAttribs)
+
+      #Adds this input file's information to the summary table
+      fileAttribsFull <- rbind(fileAttribsFull, fileAttribs)
+    }
+    
+    #Reformats the date columns to be the right date format
+    fileAttribsFull[,3] <- format(fileAttribsFull[,3], "%Y-%m-%d")
+    fileAttribsFull[,4] <- format(fileAttribsFull[,4], "%Y-%m-%d")
+   
+    #Names the columns
+    colnames(fileAttribsFull) <- summColNames
+
+    return(fileAttribsFull)
+
+  })
   
-  #Creates a summary data.frame as a reactive object
-  table <- reactive({
+  
+  ###Creates summary input tables
+  #Header for the input file summary tables
+  output$tableHeader <- renderText("Summary tables of input files")
+  
+  #Creates a summary data.frame as a reactive object.
+  #This table includes file name, station ID, start date, end date, and record count.
+  table1 <- reactive({
 
     #Shows the table headings before files are input
     if (is.null(allFiles())) {
-      
-      #Creates empty table columns
-      nullTable <- data.frame(filenameNull = c("Awaiting data"), 
-                              stationIDNull = c("Awaiting data"),
-                              dataTypeNull = c("Awaiting data"),
-                              startDateNull = c("Awaiting data"),
-                              endDateNull = c("Awaiting data"),
-                              recCountNull = c("Awaiting data"))
-      
-      #Creates column names and adds them to the table
-      columns <- c("File name", "Station ID", "Data type", "Starting date", "Ending date", "Record count")
-      colnames(nullTable) <- columns
-      
+
+      #Subsets the columns of the pre-upload data for display
+      nullTable1 <- fileAttribsNull()[c(1:4)]
+
       #Sends the empty table to be displayed
-      return(nullTable)
+      return(nullTable1)
     } 
-    
-    #Initializes the summary table
-    summaryTable <- data.frame(filename = character(), 
-                               stationID = character(),
-                               dataType = character(),
-                               startDate = as.Date(character()),
-                               endDate = as.Date(character()),
-                               recordCount = as.integer())
-    
-    #Iterates through all the selected files in the data.frame 
-    #to extract information from them
-    for (i in 1:nrow(allFiles())) {
-      
-      #The filename of the file currently being extracted from
-      filename <- UserFile_Name()[i]
-      
-      #Renames the user-selected opertion from something user-friendly
-      #to what ContDataQC can understand
-      operation <- renameOperation(input$Operation)
-      
-      #Runs a function to extract the station ID, data type, and start and
-      #end dates from the input file name.
-      #The returned object is a data.frame, in which each column has one
-      #of the attributes.
-      fileAttribs <- nameParse(filename, operation)
-      
-      #Creates objects for the station ID, type of data in the file
-      #(e.g., Air, Air & Water, Water) and start and end dates of
-      #the file
-      stationID <- fileAttribs[1,1]
-      dataType <- fileAttribs[1,2]
-      startDate <- fileAttribs[1,3]
-      endDate <- fileAttribs[1,4]
-      
-      #Extracts how many records are in the spreadsheet
-      actualData <- read.csv(UserFile_Path()[i], header=TRUE)
-      recordCount <- nrow(actualData)
-      
-      #Adds this input file's information to the summary table
-      summaryRow <- data.frame(filename, stationID, dataType, startDate, endDate, recordCount)
-      summaryTable <- rbind(summaryTable, summaryRow)
-    }
-    
-    #Creates column names for the summary table
-    columns <- c("File name", "Station ID", "Data type", "Starting date", "Ending date", "Record count")
-    colnames(summaryTable) <- columns
-    
-    #Reformats the date columns to be the right date format
-    summaryTable[,4] <- format(summaryTable[,4], "%Y-%m-%d")
-    summaryTable[,5] <- format(summaryTable[,5], "%Y-%m-%d")
-    
-    return(summaryTable)
+
+    #Subsets the file attribute table with just 
+    #file name, site ID, start date, end date, and number of records
+    summaryTable1 <- fileAttribsFull()[,c(1:5)]
+    colnames(summaryTable1) <- colnames(fileAttribsFull()[c(1:5)])
+
+    return(summaryTable1)
   })
   
-  #Outputs a summary table of all input files
-  #so users can check whether the right files are selected.
+  #Outputs a summary table with file name, station ID, starting date
+  #ending date, and record count
   #Each input spreadsheet gets one row.
-  output$summaryTable <- renderTable({
-    table()
+  output$summaryTable1 <- renderTable({
+    table1()
+  })
+  
+  #Creates a summary data.frame as a reactive object
+  #This table includes file name and which data types were found in each file
+  table2 <- reactive({
+    
+    #Shows the table headings before files are input
+    if (is.null(allFiles())) {
+      
+      #Subsets the columns of the pre-upload data for display
+      nullTable2 <- fileAttribsNull()[c(1,6:12)]
+      
+      #Sends the empty table to be displayed
+      return(nullTable2)
+    } 
+
+    #Subsets the file attribute table with just 
+    #file name, water/air temp, water/air pressure, sensor depth,
+    #gage height, and flow
+    summaryTable2 <- fileAttribsFull()[,c(1, 6:12)]
+    colnames(summaryTable2) <- colnames(fileAttribsFull()[c(1, 6:12)])
+
+    return(summaryTable2)
+  })
+  
+  #Outputs a summary table with file name and whether each data 
+  #type was found.
+  #Each input spreadsheet gets one row.
+  output$summaryTable2 <- renderTable({
+    table2()
   })
 
   

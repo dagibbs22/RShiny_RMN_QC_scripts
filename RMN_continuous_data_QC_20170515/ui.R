@@ -56,8 +56,8 @@ shinyUI(
                       The package is available for download from GitHub for running on your computer within R 
                       (repo 'leppott/ContDataQC')."),
                     br(),
-                    p(paste("NOTE: This website is under development. New versions will be released periodically. E-mail the above contacts to
-                      find out if there is a new version available at a different link. 
+                    p(paste("NOTE: This website is under development. New versions will be released periodically. 
+                      E-mail the above contacts to find out if there is a new version available at a different link. 
                       This version was last updated on "), Sys.Date())
                     
              ),
@@ -95,7 +95,7 @@ shinyUI(
                     p("10. Verify that the files are being interpreted correctly in the table."),
                     p("11. Click the 'Run process' button on the next tab. A progress bar will appear in the
                       bottom-right of the tab. It will advance as each file is completed. Thus, if you 
-                      upload three files, it will wait at 0%, jump to 33%, jump tp 66%, and then jump to 100%."),
+                      upload three files, it will wait at 0%, jump to 33%, jump to 66%, and then jump to 100%."),
                     p("12. Once the process is completed, a 'Download' button will appear below the 'Run process'
                       button. Click the button to download a zip file of all output files (spreadsheets and QC
                       reports). Where the files will download on your computer depends on the configuration 
@@ -162,11 +162,13 @@ shinyUI(
         # textOutput(paste("testText")),
 
         #Shows an empty table until files are input
-        tableOutput("nullTable"),
+        tableOutput("nullTable1"),
+        tableOutput("nullTable2"),
         
         #Outputs the table with properties of the input spreadsheets,
         #and a testing table of the beginning of the spreadsheets
-        tableOutput("summaryTable")
+        tableOutput("summaryTable1"),
+        tableOutput("summaryTable2")
       )
     )
   ),
@@ -187,7 +189,7 @@ shinyUI(
                   A progress bar will appear in the bottom-right of the tab. 
                   It will advance as each file is completed. 
                   Thus, if you select three stations, it will wait at 0%, 
-                  jump to 33%, jump tp 66%, and then jump to 100%."),
+                  jump to 33%, jump to 66%, and then jump to 100%."),
                 p("4. After data retrieval completes, a download button 
                   will appear. Click the button to download a zip file of all station records.
                   Where the files will download on your computer depends on the configuration 
