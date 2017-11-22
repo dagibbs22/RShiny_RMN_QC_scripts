@@ -1,7 +1,7 @@
 shinyUI(
  
   navbarPage("Continuous data QC, summary, and statistics- PRELIMINARY WEBSITE",
-                    
+                   
   tabPanel("Tool background and data template",
            
            fluidRow(

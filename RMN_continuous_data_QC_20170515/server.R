@@ -247,13 +247,17 @@ shinyServer(function(input, output, session) {
         
         #Fills in the progress bar once the operation is complete
         incProgress(1, detail = paste("Finished aggregating files"))
-        
+
         #Pauses the progress bar once it's done
         Sys.sleep(2)
         
         #Names the single column of the R console output data.frame
         colnames(console$disp) <- c(paste("R console messages for ", input$Operation))
-        
+
+        #Renames the output aggregation files so that the "append_x" is replaced
+        #with the ending date
+        aggRenamed <- renameAggOutput(getwd(), fileAttribsFull())
+
       }
       
       #The QCRaw and Summarize functions can be fed individual input files
@@ -338,7 +342,7 @@ shinyServer(function(input, output, session) {
   
           #Lists only the csv and html files on the server
           zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
-          zip.docx <- dir(getwd(), full.names=TRUE, pattern=".*docx")
+          zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
           zip.html <- dir(getwd(), full.names=TRUE, pattern="QC.*html")
           zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
           files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
@@ -352,7 +356,7 @@ shinyServer(function(input, output, session) {
     
     #Zipping procedures for the output of the aggregation process
     if (operation == "Aggregate"){
-      
+
       output$downloadData <- downloadHandler(
         
         #Names the zip file
@@ -362,7 +366,7 @@ shinyServer(function(input, output, session) {
         
         #Zips the output files
         content <- function(fname) {
-          
+
           #Lists only the csv and docx files on the server
           zip.csv <- dir(getwd(), full.names=TRUE, pattern="DATA.*csv")
           zip.docx <- dir(getwd(), full.names=TRUE, pattern=".*docx")
