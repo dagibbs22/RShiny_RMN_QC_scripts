@@ -167,9 +167,20 @@ renameAggOutput <- function(directory, fileAttribsTable) {
     csvInputs.parts <- strsplit(csvInputs[i], myDelim)
     data.type.inputs[i] <- csvInputs.parts[[1]][3]
   }
+  
+  #Gets the earliest and latest starting and ending dates for all input files
+  minStartDate <- min(fileAttribsTable[,3])
+  maxStartDate <- max(fileAttribsTable[,3])
 
-  #Changes the output file names if the input files have different data types
-  if(data.type.inputs[1] != data.type.inputs[2]){
+  minEndDate <- min(fileAttribsTable[,4])
+  maxEndDate <- max(fileAttribsTable[,4])
+
+
+  #Changes the output file names if the input files have different data types 
+  #and have the same start and end dates
+  if(data.type.inputs[1] != data.type.inputs[2]
+     && minStartDate == maxStartDate
+     && minEndDate == maxEndDate){
     
     #Creates a data.frame for converting the input data types to the output data type
     first.data.type <-      c("A",  "A",  "W",  "W",  "G",  "G",  "AW", "AW",  "AG",  "WG",  "G",   "W",   "A")

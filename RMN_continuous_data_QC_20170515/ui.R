@@ -124,19 +124,12 @@ shinyUI(
         #Operation to be performed on the selected data
         ,selectInput("Operation", 
                     label = "Choose operation to perform",
-                    choices = c( 
-                               #"Get gage data", 
+                    choices = c("",
                                 "QC raw data", 
                                 "Aggregate QC'ed data", 
-                                "Summary statistics"),
-                    selected = "QC raw data")
+                                "Summary statistics")
+                    ,selected = "")
 
-        # #User types or copies in the full output directory
-        # ,textInput("inputDir", label="Input directory for data", value = "", width = NULL, placeholder = NULL)
-        
-        # #User types or copies in the full output directory
-        # ,textInput("outputDir", label="Output directory for data", value = "", width = NULL, placeholder = NULL)
-  
         #Only shows the "Run process" button after data are uploaded
         ,tags$div(title="Click to run selected operation",
                   uiOutput('ui.runProcess')
@@ -168,7 +161,15 @@ shinyUI(
         #Outputs the table with properties of the input spreadsheets,
         #and a testing table of the beginning of the spreadsheets
         tableOutput("summaryTable1"),
-        tableOutput("summaryTable2")
+        tableOutput("summaryTable2"),
+        
+        br(),
+        br(),
+        br(),
+        
+        #Shows a note if spreadsheets with multiple sites are selected
+        #for the Aggregate process
+        h4(textOutput("moreThanOneSite"))
       )
     )
   ),

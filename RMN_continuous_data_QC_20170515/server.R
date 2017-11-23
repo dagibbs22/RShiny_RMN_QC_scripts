@@ -193,6 +193,24 @@ shinyServer(function(input, output, session) {
       actionButton("runProcess", "Run process")
   })
   
+  #Shows a warning on the interface if more than one site is 
+  #included in the spreadsheets for the Aggregate process
+  output$moreThanOneSite <- renderText({
+    
+    #Converts the more user-friendly input operation name to the name
+    #that ContDataQC() understands
+    operation <- renameOperation(input$Operation)
+    
+    #Determines how many sites are included in the Aggregate input files
+    siteNum <- length(levels(fileAttribsFull()[,2]))
+
+    #Shows the warning if there is more than one site input to Aggregate
+    if(operation == "Aggregate" && siteNum != 1){
+      return(paste("WARNING: The spreadsheets you have selected for the aggregate process include more than one site. 
+                   Please select spreadsheets that include only one site."))
+    }
+  })
+  
   #Runs the selected process by calling on the QC script that Erik Leppo wrote
   observeEvent(input$runProcess, {
     
@@ -224,7 +242,7 @@ shinyServer(function(input, output, session) {
 
         #Creates a vector of filenames
         fileNameVector <-  as.vector(UserFile_Name())
-        
+
         #Changes the status bar to say that aggregation is occurring
         incProgress(0, detail = paste("Aggregating ", length(fileNameVector), " files"))
         
