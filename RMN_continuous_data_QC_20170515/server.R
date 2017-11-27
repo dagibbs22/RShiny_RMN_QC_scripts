@@ -14,7 +14,7 @@ shinyServer(function(input, output, session) {
         write.csv(dataTemplate, file)
       }
     )
-  
+
   
   ###Defines objects for the whole app
   #Creates a reactive object with all the input files
@@ -188,10 +188,68 @@ shinyServer(function(input, output, session) {
   
   ###Runs the selected process
   #Shows the "Run process" button after the data are uploaded
-  output$ui.runProcess <- renderUI({88
+  output$ui.runProcess <- renderUI({
+
     if (is.null(allFiles())) return()
       actionButton("runProcess", "Run process")
   })
+  
+  #Shows a warning on the interface if the uploaded sites
+  #have not been QCed and Aggregate has been selected
+  output$aggUnQCedData <- renderText({
+    
+    if (is.null(allFiles())) return()
+    
+    #Converts the more user-friendly input operation name to the name
+    #that ContDataQC() understands
+    operation <- renameOperation(input$Operation)
+    
+    #Reads in the first uploaded spreadsheet. Only checks the first
+    #uploaded spreadsheet's column names on the assumption that if one
+    #spreadsheet hasn't been through the QC process, the others haven't
+    #as well.
+    actualData <- read.csv(UserFile_Path()[1], header=TRUE)
+    
+    #The first four characters of each column name, for comparison with the
+    #string "Flag", which is produced by the QC process
+    fileCols <- substr(colnames(actualData),1,4)
+
+    #Shows the warning if sites haven't been QCed
+    if(!("Flag" %in%  fileCols) && operation == "Aggregate"){
+      return(paste("WARNING: The spreadsheets you have selected for the aggregate process have
+                   not gone through the QC process. 
+                   Please put these spreadsheets through the QC process first."))
+    }
+  })
+  
+  #Shows a warning on the interface if the uploaded sites
+  #have not been QCed and Summarize has been selected
+  output$summUnQCedData <- renderText({
+    
+    if (is.null(allFiles())) return()
+    
+    #Converts the more user-friendly input operation name to the name
+    #that ContDataQC() understands
+    operation <- renameOperation(input$Operation)
+
+    #Reads in the first uploaded spreadsheet. Only checks the first
+    #uploaded spreadsheet's column names on the assumption that if one
+    #spreadsheet hasn't been through the QC process, the others haven't
+    #as well.
+    actualData <- read.csv(UserFile_Path()[1], header=TRUE)
+    
+    #The first four characters of each column name, for comparison with the
+    #string "Flag", which is produced by the QC process
+    fileCols <- substr(colnames(actualData),1,4)
+
+    #Shows the warning if sites haven't been QCed
+    if(!("Flag" %in%  fileCols) && operation == "SummaryStats"){
+      return(paste("WARNING: The spreadsheets you have selected for the summarize process have
+                   not gone through the QC process. 
+                   Please put these spreadsheets through the QC process first."))
+    }
+    })
+  
   
   #Shows a warning on the interface if more than one site is 
   #included in the spreadsheets for the Aggregate process

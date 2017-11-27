@@ -1,8 +1,9 @@
 shinyUI(
  
   navbarPage("Continuous data QC, summary, and statistics- PRELIMINARY WEBSITE",
+             theme= shinytheme("spacelab"), #also liked "cerulean" at https://rstudio.github.io/shinythemes/
                    
-  tabPanel("Tool background and data template",
+  tabPanel("Site background and directions",
            
            fluidRow(
              column(5,
@@ -51,20 +52,26 @@ shinyUI(
                       download a separate csv for each gage over that time period. 
                       See the 'Download USGS gage data' tab for more information."),
                     br(),
-                    p("If you have questions about the RMNs or this tool, please contact bierwagen.britta@epa.gov or gibbs.david@epa.gov.
+                    p("If you have questions about the RMNs or this tool, please contact bierwagen.britta@epa.gov, gibbs.david@epa.gov,
+                      or jen.stamp@tetratech.com.
                       The R code underlying the data processing (package ContDataQC) was written by Erik Leppo at Tetra Tech, Inc. 
                       The package is available for download from GitHub for running on your computer within R 
                       (repo 'leppott/ContDataQC')."),
                     br(),
                     p(paste("NOTE: This website is under development. New versions will be released periodically. 
                       E-mail the above contacts to find out if there is a new version available at a different link. 
-                      This version was last updated on "), Sys.Date())
+                      This version was last updated on "), Sys.Date(), ".")
                     
              ),
              
              column(5, offset = 1,
                     h3("Instructions for running the QC process", align = "center"),
                     br(),
+                    p("Below are abbreviated instructions for using the QC/aggregate/summarize features of this
+                      website. 
+                      For more complete information on managing continuous data, preparing data for this website,
+                      understanding outputs, and troubleshooting, please refer to",
+                    a("this presentation", target="_blank", href="RMN_QC_website_slides_2017_11_27.pdf")),
                     p("1. Convert all the spreadsheets you will upload to this website into csvs."),
                     p("2. Name your input files as follows: SITENAME_DATATYPE_STARTDATE_ENDDATE.csv. The site name
                       should match the site name in the input files. Data types are as follows: A (air), W (water), G (flow), 
@@ -148,7 +155,7 @@ shinyUI(
         #Header for the summary table
         h4(textOutput("tableHeader")),
         
-        p("After uploading data and selecting your process, confirm that the table below is showing
+        p("After uploading data, confirm that the table below is showing
           the expected values"),
         
         # #FOR TESTING ONLY. Outputs testing text
@@ -169,6 +176,8 @@ shinyUI(
         
         #Shows a note if spreadsheets with multiple sites are selected
         #for the Aggregate process
+        h4(textOutput("aggUnQCedData")),
+        h4(textOutput("summUnQCedData")),
         h4(textOutput("moreThanOneSite"))
       )
     )
@@ -232,56 +241,100 @@ shinyUI(
   ),
   
   tabPanel("FAQ",
-           h2("A growing list of frequently asked questions")
+           h3("A growing list of frequently asked questions")
            ,br()
-           ,p("Question: Why isn't my spreadsheet processing? The website just shuts down.")
-           ,p("Answer: One common reason the site won't process input spreadsheets is because they are
-             formatted incorrectly. Make sure the formatting of your input spreadsheets is correct by
-             checking it against the template on the 'Tool background and data template' tab. If that
-             does not fix the problem, contact the e-mail addresses listed on that tab.")
+           ,p("Question: What internet browsers is this website compatible with?")
+           ,p("Answer: It has been tested with Internet Explorer and Google Chrome. 
+              It may be compatible with other browsers but they have not been tested.")
            ,br()
-           ,p("Q: What happens if the site IDs in the input file names don't match the site IDs in the 
-             input files?")
+           ,p("Q: What will happen if the site IDs in the input file names don't match the site IDs in the 
+              input files?")
            ,p("A: The tool will still work. The output file names will use the site IDs in the input
-             file names. The site IDs in the output files will use the site IDs used in the input
-             files. Nevertheless, it is good practice to have the site IDs in the file names and
-             inside the files match.")
+              file names. 
+              The output spreadsheets themselves will use the site IDs used in the input spreadsheets. 
+              Nevertheless, it is good practice to have the site IDs in the file names and inside 
+              the files match.")
            ,br()
-           ,p("Q: What happens if the date ranges in the input file names don't match the date ranges 
-             in the files?")
+           ,p("Q: What will happen if the date ranges in the input file names don't match the date ranges 
+              in the files?")
            ,p("A: The tool will still process the inputs over the date ranges used inside the 
-             files (i.e. the dates of the first and last rows of each input file). The output file
-             names will use the date ranges of the input file names. It is good practice to have 
-             the date ranges in the file names and inside the files match.")
+              files (i.e. the dates of the first and last rows of each input file). 
+              The output file names will use the date ranges of the input file names. 
+              It is good practice to have the date ranges in the file names and inside the files match.")
            ,br()
-           ,p("Q: What internet browsers is this compatible with?")
-           ,p("A: It has been tested with Internet Explorer and Google Chrome. It may be compatible
-              with other browsers but they have not been tested.")
+           ,p("Q: What will happen if I try to aggregate files with overlapping dates?")
+           ,p("A: This may cause errors in the output spreadsheet. 
+              We recommend that the files input to the aggregate process do not have overlapping dates. 
+              It is fine of the input files are non-consecutive.")
            ,br()
-           ,p("Q: I started the QC step and then left my computer for 10 minutes. When I returned
-              the website was grayed out. What happened?")
-           ,p("A: The website times out after a few minutes of not being used. Of the QC, aggregate,
-              and summarize processes, QCing takes the longest and it should never take more than
-              a minute or two per file.")
+           ,p("Q: What's the largest spreadsheet size I can upload?")
+           ,p("A: The total size of uploaded spreadsheets should not be larger than 70 MB.
+              Note that it would take the website quite a while to process such a large input.")
            ,br()
-           ,p("Q: Can other people download my files from the website?")
-           ,p("A: They should not be able to. As soon as you upload a new set of data or close the 
-              tab the website is in, your old data should be deleted. If you do somehow get someone
-              else's data (instead of or in addition to yours), please contact us.")
-           ,br()
-           ,p("Q: Why does the progress bar stay still for awhile then jump ahead to completion?")
-           ,p("A: It has to do with how the file processing is done. The progress bar does not 
-              move until after each file is completed. Thus, if only one file is uploaded, the 
-              progress bar goes from 0% to 100% in one jump. If three files are uploaded, the bar
-              jumps from 0% to 33% to 66% to 100%.")
+           ,p("Q: What's the limit on the number of spreadsheets I can upload?")
+           ,p("A: No limit is known at this point. We have tested the website with seven spreadsheets.
+              If you encounter a limit, please let us know.")
            ,br()
            ,p("Q: What will happen if I accidentally run the wrong process on my input files?")
            ,p("A: Either the tool won't run at all or it'll produce output files with weird names
               (e.g., if you run the QC process on files you've already QCed, you'll get output
-              files that start with the name 'QC-QC_'")
+              files that start with the name 'QC_QC_').")
+           ,br()
+           ,p("Q: How long does it take for the website to process uploaded files?")
+           ,p("A: Of the QC, aggregate, and summarize processes, QCing takes the longest and it should 
+              not take more than a minute or two per 5000 records being processed. 
+              Retrieving USGS gage data should only take a few minutes per site for a year's worth
+              of records.")
+           ,br()
+           ,p("Q: I ran one of the website's processes and then left my computer for 10 minutes. 
+              When I returned the website was grayed out. What happened?")
+           ,p("A: The website times out after a few minutes of not being used. 
+              You will need to upload your files and start the process again.")
+           ,br()
+           ,p("Q: Why does the progress bar stay still for awhile then jump ahead to completion?")
+           ,p("A: Its a result of how the website processes uploaded files. 
+              The progress bar does not move until after each file is completed. 
+              Thus, if only one file is uploaded, the progress bar goes from 0% to 100% in one jump. 
+              If three files are uploaded, the bar jumps from 0% to 33% to 66% to 100% as each file
+              is completed. 
+              Think of the progress bar as showing which file the website is currently processing, not
+              as the actual progress towards processing that file.")
+           ,br()
+           ,p("Q: Why isn't my spreadsheet processing? The website just shuts down.")
+           ,p("A: One common reason the site won't process input spreadsheets is because they are
+              formatted incorrectly. 
+              Make sure the formatting of your input spreadsheets is correct by checking it against 
+              the template on the 'Site background and directions' tab. 
+              If that does not fix the problem, contact the e-mail addresses listed on that tab.")
+           ,br()
+           ,p("Q: Can other people download my files from the website?")
+           ,p("A: They should not be able to. 
+              As soon as you upload a new set of data or close the tab in which you are viewing 
+              the website, all of your files (inputs, outputs, USGS data) should be deleted. 
+              If you do somehow get someone else's data (instead of or in addition to your own), 
+              please contact us.")
+           ,p("Q: Can I change the QC thresholds that the QC process uses?")
+           ,p("A: Not at this time. In a future update, you will be able to provide a custom 
+              threshold spreadsheet for the QC process.")
+           ,br()
+           ,p("Q: What is the 'R console output' tab for?")
+           ,p("A: All four processes on this website produce status updates.
+              After the process has completed, these messages are displayed on this tab.
+              You don't need to refer to them unless there's an error, in which case you should send
+              the console output to the contacts listed on this website.")
+           ,p("Q: Can I download data from different USGS gages at different time periods?")
+           ,p("A: Not at this time. Currently, all USGS gages you enter will have data downloaded 
+              over the same time period.")
            ,br()
            ,p("Q: I've gotta QC my data on the go. Can I use this site on my phone?")
-           ,p("A: Mobile use of this app is untested. Please let us know how it goes.")
+           ,p("A: Mobile use of this app is untested. 
+              Please let us know how it goes.
+              Just remember that internet access is required.")
+           ,br()
+           ,p("Q: Why does the website header say 'preliminary'?")
+           ,p("A: This website is still under development. Features are being added to it. 
+              Moreover, it has not been approved for public release and is not hosted on
+              an official EPA server.")
   )
   
 )

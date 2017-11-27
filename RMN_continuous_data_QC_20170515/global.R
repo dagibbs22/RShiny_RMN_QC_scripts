@@ -6,6 +6,7 @@ library(rsconnect)
 #install_github("leppott/ContDataQC")
 library(ContDataQC)
 library(zoo) 
+library(shinythemes)
 
 #Seems necessary for making R able to zip files when run locally. Allows R to
 #access Window's zipping abilities
@@ -31,6 +32,14 @@ fileParse <- function(inputFile) {
     startDate <-min(as.Date(inputFile$Date.Time, format = "%Y-%m-%d"))
     endDate <- max(as.Date(inputFile$Date.Time, format = "%Y-%m-%d"))
   } 
+  
+  #Recognizes dates if they are in a Date field as opposed to a Date.Time field
+  else if("Date" %in% colnames(inputFile)){
+    startDate <-min(as.Date(inputFile$Date, format = "%m/%d/%Y"))
+    endDate <- max(as.Date(inputFile$Date, format = "%m/%d/%Y"))
+  }
+  
+  #Recognizes dates if they are in a Date.Time field
   else {
     startDate <-min(as.Date(inputFile$Date.Time, format = "%m/%d/%Y"))
     endDate <- max(as.Date(inputFile$Date.Time, format = "%m/%d/%Y"))
@@ -89,11 +98,8 @@ fileParse <- function(inputFile) {
 #Converts the more intuitive operation names into operation names that
 #the ContDataQC() will recognize
 renameOperation <- function(operation) {
-  if (operation == "Get gage data") {
-    operation <- "GetGageData"
-  }
-  
-  else if (operation == "QC raw data") {
+
+  if (operation == "QC raw data") {
     operation <- "QCRaw"
   }
   
@@ -101,8 +107,12 @@ renameOperation <- function(operation) {
     operation <- "Aggregate"
   }
   
-  else {
+  else if (operation == "Summary statistics") {
     operation <- "SummaryStats"
+  }
+  
+  else {
+    operation <- ""
   }
 }
 
@@ -151,11 +161,31 @@ deleteFiles <- function(directory, inputFiles) {
 #and replaces that with the ending date of the latest file.
 renameAggOutput <- function(directory, fileAttribsTable) {
 
-  #Gets the input csvs and output csv and HTML reports
-  csvInputs <- list.files(directory, pattern = "^QC.*csv")
-  csvOutput <- list.files(directory, pattern = "DATA_QC.*csv")
-  htmlOutput <- list.files(directory, pattern = "DATA_QC.*html")
+  #All files in the working directory
+  allFiles <- list.files(directory)
   
+  #Creates vectors for the input and output files
+  csvInputs <- vector()
+  csvOutput <- vector()
+  htmlOutput <- vector()
+  
+  #Populates vectors for the input and output files if the input files are
+  #output from the Aggregate process
+  if ("DATA_DATA" %in% substr(allFiles,1,9)){
+    csvInputs <- list.files(directory, pattern = "^DATA_QC.*csv")
+    csvOutput <- list.files(directory, pattern = "DATA_DATA_QC.*csv")
+    htmlOutput <- list.files(directory, pattern = "DATA_DATA_QC.*html")
+  } 
+  
+  #Populates vectors for the input and output files if the input files are
+  #output from non-Aggregate processes
+  else{
+    #Gets the input csvs and output csv and HTML reports
+    csvInputs <- list.files(directory, pattern = "^QC.*csv")
+    csvOutput <- list.files(directory, pattern = "DATA_QC.*csv")
+    htmlOutput <- list.files(directory, pattern = "DATA_QC.*html")
+  }
+
   #For parsing the file names
   myDelim <- "_"
 
@@ -165,7 +195,8 @@ renameAggOutput <- function(directory, fileAttribsTable) {
   #Extracts the data type from all input files
   for (i in 1:length(csvInputs)){
     csvInputs.parts <- strsplit(csvInputs[i], myDelim)
-    data.type.inputs[i] <- csvInputs.parts[[1]][3]
+    data.type.inputs.number <- which(csvInputs.parts[[1]] == fileAttribsTable[1,2]) + 1
+    data.type.inputs[i] <- csvInputs.parts[[1]][data.type.inputs.number]
   }
   
   #Gets the earliest and latest starting and ending dates for all input files
