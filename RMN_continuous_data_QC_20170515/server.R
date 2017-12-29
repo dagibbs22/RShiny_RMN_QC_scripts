@@ -35,7 +35,13 @@ shinyServer(function(input, output, session) {
     if(is.null(allFiles())) return(NULL)
     return(allFiles()$datapath)
   })
+
+  #Creates a reactive object that stores whether a configuration file has been uploaded
+  config <- reactiveValues(
+    x="default"
+  )
   
+  #Creates the empty table for station properties
   fileAttribsNull <- reactive({
     
     #Column names for the table
@@ -191,7 +197,14 @@ shinyServer(function(input, output, session) {
   output$ui.runProcess <- renderUI({
 
     if (is.null(allFiles())) return()
-      actionButton("runProcess", "Run process")
+    
+    
+    #Converts the more user-friendly input operation name to the name
+    #that ContDataQC() understands
+    operation <- renameOperation(input$Operation)
+    
+    if (operation == "") return()
+    actionButton("runProcess", "Run process")
   })
   
   #Shows a warning on the interface if the uploaded sites
@@ -283,6 +296,38 @@ shinyServer(function(input, output, session) {
     #Converts the more user-friendly input operation name to the name
     #that ContDataQC() understands
     operation <- renameOperation(input$Operation)
+    
+    #Allows users to use their own configuration/threshold files for QC.
+    #Copies the status of the config file to this event.
+    config_type <- config$x
+    
+    #Temportary location for the config file
+    config <- getwd()
+
+    #If a configuration file has been uploaded, the app uses it
+    if (config_type == "uploaded") {
+      
+      #Copies the uploaded configuration file from where it was uploaded to into the working directory.
+      #The config file must be in the working directory for this to work.
+      copy.from2 <- file.path(input$configFile$datapath)
+      copy.to2 <- file.path(getwd(), input$configFile$name)
+      file.copy(copy.from2, copy.to2)
+      
+      #Makes the configuration object refer to the uploaded configuration file
+      config <- file.path(getwd(), input$configFile$name)
+      
+      print(paste("uploaded:", config))
+
+    } 
+    #If no configuration file has been uploaded, the default is used
+    else {
+      
+      configToDelete <- list.files(path = getwd(), pattern = input$configFile$name, full.names = TRUE)
+      file.remove(configToDelete)
+      # config <- ""
+      config <- system.file("extdata", "Config.COLD.R", package="ContDataQC")
+      print(paste("default:", config))
+    }
 
     #Creates a data.frame for the R console output of the ContDataQC() script
     console$disp <- data.frame(consoleOutput = character())
@@ -311,6 +356,7 @@ shinyServer(function(input, output, session) {
                         ContDataQC(operation, 
                         fun.myDir.import = getwd(),
                         fun.myDir.export = getwd(),
+                        fun.myConfig = config,
                         fun.myFile = fileNameVector,
                         fun.myReport.format = "html"
                         )
@@ -349,16 +395,15 @@ shinyServer(function(input, output, session) {
           
           #Changes the status bar to say that the process is occurring
           incProgress(0, detail = paste("Operating on", fileName))
-
+          
           #Saves the R console output of ContDataQC()
           consoleRow <- capture.output(
             
                           #Runs ContDataQC() on an individual file
                           ContDataQC(operation,
-                          # fun.myDir.import = inputFolder,
-                          # fun.myDir.export = outputFolder,
                           fun.myDir.import = getwd(),
                           fun.myDir.export = getwd(),
+                          fun.myConfig = config,
                           fun.myFile = fileName,
                           fun.myReport.format = "html"
                           )
@@ -618,6 +663,26 @@ shinyServer(function(input, output, session) {
       return(NULL)
     
     return(consoleUSGS$disp)
+  })
+  
+  
+  ###Returns the configuration file to default status 
+  #Shows the "Default" button after a user-selected config file is uploaded
+  output$ui.defaultConfig <- renderUI({
+    if (is.null(input$configFile)) return()
+    actionButton("defaultConfig", "Return to default configuration file")
+  })
+  
+  #Changes the config object status to a file being uploaded
+  observeEvent(input$configFile, {
+    print("uploaded config")
+    config$x <- "uploaded"
+  })
+  
+  #Changes the config object status to return to the default config file
+  observeEvent(input$defaultConfig, {
+    print("default config")
+    config$x <- "default"
   })
   
   

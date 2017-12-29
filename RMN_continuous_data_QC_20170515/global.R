@@ -1,6 +1,6 @@
 library(shiny) 
 library(shinyFiles)
-library(devtools)
+# library(devtools)
 library(rmarkdown)
 library(rsconnect)
 #install_github("leppott/ContDataQC")

@@ -17,8 +17,8 @@ shinyUI(
                       and other local organizations.
                       Although the types of sites included in the RMNs vary throughout the U.S., many of the sites are 
                       high-quality, high-gradient reference sites."),
-                    p("For more information on the RMNs, please refer to ", 
-                      tags$a(href="https://cfpub.epa.gov/ncea/global/recordisplay.cfm?deid=307973", "the RMN report.", target="_blank")),
+                    p("For more information on the RMNs, please refer to the ", 
+                      tags$a(href="https://cfpub.epa.gov/ncea/global/recordisplay.cfm?deid=307973", "RMN report.", target="_blank")),
                     br(),
                     p("One component of the RMN program is the use of standardized methods across sites to
                       improve statistical power in detecting regional changes in streams.
@@ -70,8 +70,10 @@ shinyUI(
                     p("Below are abbreviated instructions for using the QC/aggregate/summarize features of this
                       website. 
                       For more complete information on managing continuous data, preparing data for this website,
-                      understanding outputs, and troubleshooting, please refer to",
-                    a("this presentation", target="_blank", href="RMN_QC_website_slides_2017_11_27.pdf")),
+                      understanding outputs, and troubleshooting, please refer to ",
+                      a("this presentation. ", target="_blank", href="RMN_QC_website_slides_2017_11_27.pdf"),
+                      "You can find some test files ",
+                      a("here.", target="_blank", href="Continuous_data_test_files_2017_11_28.zip")),
                     p("1. Convert all the spreadsheets you will upload to this website into csvs."),
                     p("2. Name your input files as follows: SITENAME_DATATYPE_STARTDATE_ENDDATE.csv. The site name
                       should match the site name in the input files. Data types are as follows: A (air), W (water), G (flow), 
@@ -79,7 +81,7 @@ shinyUI(
                       YYYYMMDD (e.g., 20151203). Some example input file names are: 097_A_20150305_20150630.csv, 
                       GOG12F_AW_20130426_20130725.csv, and BE92_AWG_20150304_20151231.csv."),
                     p("3.	Download the template using the “Download continuous data template” button on the 
-                      “Tool background and data template” tab of the website. In order for this website to 
+                      “Site background and directions” tab of the website. In order for this website to 
                       correctly process your continuous data, you need to format it in a specific way."),
                     downloadButton("downloadTemplate","Download continuous data template"),
                     br(),
@@ -141,6 +143,7 @@ shinyUI(
         ,tags$div(title="Click to run selected operation",
                   uiOutput('ui.runProcess')
         )
+        
         ,br()
         ,br()
          
@@ -171,13 +174,14 @@ shinyUI(
         tableOutput("summaryTable2"),
         
         br(),
-        br(),
-        br(),
+
+        #Shows a note if the user uploads non-QCed data and selects
+        #the Aggregate or Summarize processes
+        h4(textOutput("aggUnQCedData")),
+        h4(textOutput("summUnQCedData")),
         
         #Shows a note if spreadsheets with multiple sites are selected
         #for the Aggregate process
-        h4(textOutput("aggUnQCedData")),
-        h4(textOutput("summUnQCedData")),
         h4(textOutput("moreThanOneSite"))
       )
     )
@@ -224,24 +228,53 @@ shinyUI(
            )
   ),
   
-  tabPanel("R console output",
-           p("This tab shows messages output by the QC, aggregating, summarizing, and USGS data retrieval processes. 
-             If there are any errors when the tool runs, please copy
-             the messages and send them and your input files to the contacts listed on the tool background tab."),
-           tableOutput("logText"),
-           tableOutput("logTextUSGS"),
-           tags$b(textOutput("logTextMessage"))
+  tabPanel("Advanced features",
+           fluidRow(
+             column(5, 
+               h3("R console output", align = "Center"),
+               p("This panel shows messages output by the QC, aggregating, summarizing, and USGS data retrieval processes. 
+               If there are any errors when the tool runs, please copy
+               the messages and send them and your input files to the contacts listed on the tool background tab."),
+               tableOutput("logText"),
+               tableOutput("logTextUSGS"),
+               tags$b(textOutput("logTextMessage"))
 
-           ## For debugging only: lists all files on the server
-           # ,br()
-           # ,br()
-           # ,br()
-           # ,br()
-           # ,tableOutput("serverTable")
+               ## For debugging only: lists all files on the server
+               # ,br()
+               # ,br()
+               # ,br()
+               # ,br()
+               # ,tableOutput("serverTable")
+             ),
+             
+             column(5, offset = 1,
+               h3("Custom QC thresholds", align = "Center"),
+               p("You can upload custom QC thresholds here. 
+                 Please use",
+                 a("this ", target="_blank", href="Config_R.zip"),
+                 "configuration document as a template."),
+               p("Once you have made your changes to the configuration file, upload them below."),
+               br(),
+               #Tool tip code from https://stackoverflow.com/questions/16449252/tooltip-on-shiny-r
+               tags$div(title="Select R configuration file to upload here",
+                        
+                        #Only allows R files to be imported
+                        fileInput("configFile",label="Choose configuration file", multiple = FALSE, accept = ".R")
+               )
+               
+               ,br()
+               ,br()
+               
+               #Only shows the "Default configuration" button after a user-selected file has been used
+               ,tags$div(title="Click to use default configuration data",
+                         uiOutput('ui.defaultConfig')
+               )
+             )
+           )
   ),
   
   tabPanel("FAQ",
-           h3("A growing list of frequently asked questions")
+           h3("A growing list of potentially frequently asked questions")
            ,br()
            ,p("Question: What internet browsers is this website compatible with?")
            ,p("Answer: It has been tested with Internet Explorer and Google Chrome. 
@@ -317,11 +350,12 @@ shinyUI(
            ,p("A: Not at this time. In a future update, you will be able to provide a custom 
               threshold spreadsheet for the QC process.")
            ,br()
-           ,p("Q: What is the 'R console output' tab for?")
+           ,p("Q: What is the 'Advanced features' tab for?")
            ,p("A: All four processes on this website produce status updates.
               After the process has completed, these messages are displayed on this tab.
               You don't need to refer to them unless there's an error, in which case you should send
-              the console output to the contacts listed on this website.")
+              the console output to the contacts listed on this website.
+              You can also upload your own QC threshold spreadsheet on this tab.")
            ,p("Q: Can I download data from different USGS gages at different time periods?")
            ,p("A: Not at this time. Currently, all USGS gages you enter will have data downloaded 
               over the same time period.")
