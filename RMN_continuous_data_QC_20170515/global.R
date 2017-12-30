@@ -11,7 +11,7 @@ library(shinythemes)
 #Seems necessary for making R able to zip files when run locally. Allows R to
 #access Window's zipping abilities
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:\\Rtools\\bin", sep = ";"))
-
+ 
 #Maximum individual file size that can be uploaded is 35 MB
 options(shiny.maxRequestSize=70*1024^2)
 

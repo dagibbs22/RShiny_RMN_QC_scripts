@@ -315,18 +315,15 @@ shinyServer(function(input, output, session) {
       
       #Makes the configuration object refer to the uploaded configuration file
       config <- file.path(getwd(), input$configFile$name)
-      
-      print(paste("uploaded:", config))
 
     } 
     #If no configuration file has been uploaded, the default is used
     else {
       
-      configToDelete <- list.files(path = getwd(), pattern = input$configFile$name, full.names = TRUE)
-      file.remove(configToDelete)
-      # config <- ""
+      #Deletes the uploaded configuration file, if there is one
+      file.remove(file.path(getwd(), input$configFile$name))
+      
       config <- system.file("extdata", "Config.COLD.R", package="ContDataQC")
-      print(paste("default:", config))
     }
 
     #Creates a data.frame for the R console output of the ContDataQC() script
@@ -675,13 +672,11 @@ shinyServer(function(input, output, session) {
   
   #Changes the config object status to a file being uploaded
   observeEvent(input$configFile, {
-    print("uploaded config")
     config$x <- "uploaded"
   })
   
   #Changes the config object status to return to the default config file
   observeEvent(input$defaultConfig, {
-    print("default config")
     config$x <- "default"
   })
   

@@ -4,7 +4,7 @@ shinyUI(
              theme= shinytheme("spacelab"), #also liked "cerulean" at https://rstudio.github.io/shinythemes/
                    
   tabPanel("Site background and directions",
-           
+            
            fluidRow(
              column(5,
                     h3("Background", align = "center"),
