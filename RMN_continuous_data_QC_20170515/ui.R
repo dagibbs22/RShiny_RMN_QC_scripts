@@ -1,5 +1,5 @@
 shinyUI(
- 
+
   navbarPage("Continuous data QC, summary, and statistics- PRELIMINARY WEBSITE",
              theme= shinytheme("spacelab"), #also liked "cerulean" at https://rstudio.github.io/shinythemes/
                    
