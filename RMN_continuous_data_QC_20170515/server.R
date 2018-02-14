@@ -129,9 +129,6 @@ shinyServer(function(input, output, session) {
   
   
   ###Creates summary input tables
-  #Header for the input file summary tables
-  output$tableHeader <- renderText("Summary tables of input files")
-  
   #Creates a summary data.frame as a reactive object.
   #This table includes file name, station ID, start date, end date, and record count.
   table1 <- reactive({
@@ -193,7 +190,7 @@ shinyServer(function(input, output, session) {
 
   
   ###Runs the selected process
-  #Shows the "Run process" button after the data are uploaded
+  #Shows the "Run operation" button after the data are uploaded
   output$ui.runProcess <- renderUI({
 
     if (is.null(allFiles())) return()
@@ -204,7 +201,7 @@ shinyServer(function(input, output, session) {
     operation <- renameOperation(input$Operation)
     
     if (operation == "") return()
-    actionButton("runProcess", "Run process")
+    actionButton("runProcess", "Run operation")
   })
   
   #Shows a warning on the interface if the uploaded sites
@@ -355,7 +352,8 @@ shinyServer(function(input, output, session) {
                         fun.myDir.export = getwd(),
                         fun.myConfig = config,
                         fun.myFile = fileNameVector,
-                        fun.myReport.format = "html"
+                        fun.myReport.format = "html",
+                        fun.myReport.Dir = "./rmd"
                         )
         )
         
@@ -402,7 +400,8 @@ shinyServer(function(input, output, session) {
                           fun.myDir.export = getwd(),
                           fun.myConfig = config,
                           fun.myFile = fileName,
-                          fun.myReport.format = "html"
+                          fun.myReport.format = "html",
+                          fun.myReport.Dir = "./rmd"
                           )
           )
 
@@ -459,10 +458,10 @@ shinyServer(function(input, output, session) {
         content <- function(fname) {
   
           #Lists only the csv and html files on the server
-          zip.csv <- dir(getwd(), full.names=TRUE, pattern="QC.*csv")
-          zip.docx <- dir(getwd(), full.names=TRUE, pattern="QC.*docx")
-          zip.html <- dir(getwd(), full.names=TRUE, pattern="QC.*html")
-          zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
+          zip.csv <- dir(getwd(), full.names=FALSE, pattern="QC.*csv")
+          zip.docx <- dir(getwd(), full.names=FALSE, pattern="QC.*docx")
+          zip.html <- dir(getwd(), full.names=FALSE, pattern="QC.*html")
+          zip.log <- dir(getwd(), full.names=FALSE, pattern=".*tab")
           files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
           
           #Zips the files
@@ -486,10 +485,10 @@ shinyServer(function(input, output, session) {
         content <- function(fname) {
 
           #Lists only the csv and docx files on the server
-          zip.csv <- dir(getwd(), full.names=TRUE, pattern="DATA.*csv")
-          zip.docx <- dir(getwd(), full.names=TRUE, pattern=".*docx")
-          zip.html <- dir(getwd(), full.names=TRUE, pattern=".*html")
-          zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
+          zip.csv <- dir(getwd(), full.names=FALSE, pattern="DATA.*csv")
+          zip.docx <- dir(getwd(), full.names=FALSE, pattern=".*docx")
+          zip.html <- dir(getwd(), full.names=FALSE, pattern=".*html")
+          zip.log <- dir(getwd(), full.names=FALSE, pattern=".*tab")
           files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
           
           #Zips the files
@@ -513,10 +512,10 @@ shinyServer(function(input, output, session) {
         content <- function(fname) {
           
           #Lists only the csv and docx files on the server
-          zip.csv_DV <- dir(getwd(), full.names=TRUE, pattern="DV.*csv")
-          zip.csv_STATS <- dir(getwd(), full.names=TRUE, pattern="STATS.*csv")
-          zip.pdf <- dir(getwd(), full.names=TRUE, pattern=".*pdf")
-          zip.log <- dir(getwd(), full.names=TRUE, pattern=".*tab")
+          zip.csv_DV <- dir(getwd(), full.names=FALSE, pattern="DV.*csv")
+          zip.csv_STATS <- dir(getwd(), full.names=FALSE, pattern="STATS.*csv")
+          zip.pdf <- dir(getwd(), full.names=FALSE, pattern=".*pdf")
+          zip.log <- dir(getwd(), full.names=FALSE, pattern=".*tab")
           files2zip <- c(zip.csv_DV, zip.csv_STATS, zip.pdf, zip.log)
           
           #Zips the files
@@ -543,7 +542,7 @@ shinyServer(function(input, output, session) {
     consoleUSGS$disp <- data.frame(consoleOutputUSGS = character())
     
     #A short pause before the operation begins
-    Sys.sleep(2)
+    Sys.sleep(0.5)
     
     withProgress(message = paste("Getting USGS data"), value = 0, {
     
@@ -563,7 +562,8 @@ shinyServer(function(input, output, session) {
                   myData.DateRange.Start  <- input$startDate,
                   myData.DateRange.End    <- input$endDate,
                   myDir.import            <- "",
-                  myDir.export            <- getwd()
+                  myDir.export            <- getwd(),
+                  fun.myReport.Dir        <- ""
           )
           
         )
@@ -582,10 +582,10 @@ shinyServer(function(input, output, session) {
     })
     
     #Pauses the progress bar once it's done
-    Sys.sleep(2)
+    Sys.sleep(1)
     
     #Names the single column of the R console output data.frame
-    colnames(consoleUSGS$disp) <- c("R console messages for all USGS data retrievals:")
+    colnames(consoleUSGS$disp) <- c("R console messages for all USGS data retrieval:")
     
   })
   
@@ -613,7 +613,7 @@ shinyServer(function(input, output, session) {
       content <- function(fname) {
         
         #Lists only the csv and html files on the server
-        zip.csv <- dir(getwd(), full.names=TRUE, pattern=".*Gage.*csv")
+        zip.csv <- dir(getwd(), full.names=FALSE, pattern=".*Gage.*csv")
         files2zip <- c(zip.csv)
 
         #Zips the files

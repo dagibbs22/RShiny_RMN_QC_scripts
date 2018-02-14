@@ -7,6 +7,7 @@ library(zoo)
 library(shinythemes)
 library(zip)
 
+###For downloading new versions of ContDataQC and USGS' DataRetrieval package
 #library(devtools)
 #install_github("leppott/ContDataQC")
 #install_github("USGS-R/dataRetrieval")
@@ -209,7 +210,6 @@ renameAggOutput <- function(directory, fileAttribsTable) {
   minEndDate <- min(fileAttribsTable[,4])
   maxEndDate <- max(fileAttribsTable[,4])
 
-
   #Changes the output file names if the input files have different data types 
   #and have the same start and end dates
   if(data.type.inputs[1] != data.type.inputs[2]
@@ -264,6 +264,11 @@ renameAggOutput <- function(directory, fileAttribsTable) {
     htmlOutput.data.type <- gsub(paste("_Append_", length(csvInputs), sep=""),
                                 paste("", sep=""),
                                 htmlOutput.data.type)
+    
+    #Removes the "_Report_Aggregate" from the output html name
+    htmlOutput.data.type <- gsub(paste("_Report_Aggregate", sep=""),
+                                 paste("", sep=""),
+                                 htmlOutput.data.type)
 
     #Renames the html output
     file.rename(htmlOutput, htmlOutput.data.type)
