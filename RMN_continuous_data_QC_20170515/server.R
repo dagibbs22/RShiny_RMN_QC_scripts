@@ -462,8 +462,7 @@ shinyServer(function(input, output, session) {
           zip.csv <- dir(getwd(), full.names=FALSE, pattern="QC.*csv")
           zip.docx <- dir(getwd(), full.names=FALSE, pattern="QC.*docx")
           zip.html <- dir(getwd(), full.names=FALSE, pattern="QC.*html")
-          zip.log <- dir(getwd(), full.names=FALSE, pattern=".*tab")
-          files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
+          files2zip <- c(zip.csv, zip.docx, zip.html)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
@@ -489,8 +488,7 @@ shinyServer(function(input, output, session) {
           zip.csv <- dir(getwd(), full.names=FALSE, pattern="DATA.*csv")
           zip.docx <- dir(getwd(), full.names=FALSE, pattern=".*docx")
           zip.html <- dir(getwd(), full.names=FALSE, pattern=".*html")
-          zip.log <- dir(getwd(), full.names=FALSE, pattern=".*tab")
-          files2zip <- c(zip.csv, zip.docx, zip.html, zip.log)
+          files2zip <- c(zip.csv, zip.docx, zip.html)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
@@ -516,8 +514,7 @@ shinyServer(function(input, output, session) {
           zip.csv_DV <- dir(getwd(), full.names=FALSE, pattern="DV.*csv")
           zip.csv_STATS <- dir(getwd(), full.names=FALSE, pattern="STATS.*csv")
           zip.pdf <- dir(getwd(), full.names=FALSE, pattern=".*pdf")
-          zip.log <- dir(getwd(), full.names=FALSE, pattern=".*tab")
-          files2zip <- c(zip.csv_DV, zip.csv_STATS, zip.pdf, zip.log)
+          files2zip <- c(zip.csv_DV, zip.csv_STATS, zip.pdf)
           
           #Zips the files
           zip(zipfile = fname, files = files2zip)
