@@ -1,3 +1,6 @@
+#Developed by David Gibbs, ORISE fellow at the US EPA Office of Research & Development. dagibbs22@gmail.com
+#Written 2017 and 2018
+
 shinyUI(
 
   navbarPage("Continuous data QC, summary, and statistics- PRELIMINARY WEBSITE",
@@ -91,13 +94,13 @@ shinyUI(
                       Although this website was originally developed for the RMNs, it is open to all users of continuous water monitoring data."),
                     br(),
                     p("If you have questions about this website or the RMNs, please contact Britta Bierwagen (bierwagen.britta@epa.gov), 
-                      David Gibbs (gibbs.david@epa.gov), and Jen Stamp (jen.stamp@tetratech.com).
+                      David Gibbs (gibbs.david@epa.gov), Jen Stamp (jen.stamp@tetratech.com), and Erik Leppo (erik.leppo@tetratech.com).
                       You may also submit a bug/enhancement notice at this project's",
                       tags$a(href="https://github.com/dagibbs22/RShiny_RMN_QC_scripts/issues", "GitHub page.", target="_blank"),
                       "The R code underlying the data processing (package ContDataQC) was written by Erik Leppo at Tetra Tech, Inc. 
-                      The package is available for download from GitHub for running on your computer within R 
-                      (repo 'leppott/ContDataQC'). 
-                      David Gibbs (ORISE fellow at the U.S. EPA) developed this website."),
+                      The package is available for download from GitHub for running on your computer within R from ",
+                      tags$a(href="https://github.com/leppott/ContDataQC", "this GitHub page.", target="_blank"),
+                      "David Gibbs (ORISE fellow at the U.S. EPA) developed this website."),
                     br()
                     
              
@@ -151,7 +154,7 @@ shinyUI(
                       QCing raw data, aggregating QC'ed data, and summarizing QC'ed data. 
                       For more complete information on managing continuous data, preparing data for this website,
                       understanding outputs, and troubleshooting, please refer to ",
-                     a("this presentation. ", target="_blank", href="RMN_QC_website_slides_2018_02_14.pdf"),
+                     a("this presentation. ", target="_blank", href="Continuous_data_website_slides_2018_03_26.pdf"),
                        "If you want to try using this website on previously tested files, you can use these ",
                      a("test files.", target="_blank", href="Continuous_data_test_files_2017_11_28.zip"),
                      br(),
@@ -213,6 +216,8 @@ shinyUI(
                       Where the files will download on your computer depends on the configuration of your internet browser."),
                      br(),
                      tags$b("Generate summary statistics and plots of QC'ed data:"),
+                     p("NOTE: This operation will not use any records marked as 'Failed'. 
+                       Thus, if you want to include records marked as 'Failed', change their flag to something else."),
                      p("1. Upload your QC'ed files to the website using the 'Browse' button to the left. 
                        NOTE: Files must have gone through the QC operation on this website before the 'Summary statistics' operation can be used on them.
                        Files do not have to have gone through the 'Aggregate' operation prior to summarization."),
