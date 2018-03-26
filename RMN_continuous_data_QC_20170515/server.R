@@ -50,7 +50,7 @@ shinyServer(function(input, output, session) {
                       "Record count", 
                       "Water temperature", "Air temperature", 
                       "Water pressure", "Air pressure", 
-                      "Sensor depth", "Gage height", "Flow")
+                      "Sensor depth", "Flow")
     
     #Creates empty table columns
     fileAttribsNull <- data.frame(filenameNull = c("Awaiting data"), 
@@ -63,7 +63,6 @@ shinyServer(function(input, output, session) {
                              waterPressureNull = c("Awaiting data"),
                              airPressureNull = c("Awaiting data"),
                              sensorDepthNull = c("Awaiting data"),
-                             gageHeightNull = c("Awaiting data"),
                              flow = c("Awaiting data"))
     
     colnames(fileAttribsNull) <- summColNames
@@ -90,7 +89,6 @@ shinyServer(function(input, output, session) {
                       waterPressureNull = character(),
                       airPressureNull = character(),
                       sensorDepthNull = character(),
-                      gageHeightNull = character(),
                       flow = character())
     
     #Column names for the table
@@ -99,7 +97,7 @@ shinyServer(function(input, output, session) {
                                    "Record count", 
                                    "Water temperature", "Air temperature", 
                                    "Water pressure", "Air pressure", 
-                                   "Sensor depth", "Gage height", "Flow")
+                                   "Sensor depth", "Flow")
     
     #For each input file, gets the file attributes and adds it to
     #the table
@@ -137,7 +135,7 @@ shinyServer(function(input, output, session) {
     if (is.null(allFiles())) {
 
       #Subsets the columns of the pre-upload data for display
-      nullTable1 <- fileAttribsNull()[c(1:4)]
+      nullTable1 <- fileAttribsNull()[c(1:5)]
 
       #Sends the empty table to be displayed
       return(nullTable1)
@@ -166,7 +164,7 @@ shinyServer(function(input, output, session) {
     if (is.null(allFiles())) {
       
       #Subsets the columns of the pre-upload data for display
-      nullTable2 <- fileAttribsNull()[c(1,6:12)]
+      nullTable2 <- fileAttribsNull()[c(1,6:11)]
       
       #Sends the empty table to be displayed
       return(nullTable2)
@@ -175,8 +173,8 @@ shinyServer(function(input, output, session) {
     #Subsets the file attribute table with just 
     #file name, water/air temp, water/air pressure, sensor depth,
     #gage height, and flow
-    summaryTable2 <- fileAttribsFull()[,c(1, 6:12)]
-    colnames(summaryTable2) <- colnames(fileAttribsFull()[c(1, 6:12)])
+    summaryTable2 <- fileAttribsFull()[,c(1, 6:11)]
+    colnames(summaryTable2) <- colnames(fileAttribsFull()[c(1, 6:11)])
 
     return(summaryTable2)
   })

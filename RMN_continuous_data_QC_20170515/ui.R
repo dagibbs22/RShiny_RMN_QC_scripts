@@ -4,9 +4,73 @@ shinyUI(
              theme= shinytheme("spacelab"), #also liked "cerulean" at https://rstudio.github.io/shinythemes/
                    
   tabPanel("Site introduction",
-                    h3("Site background and features", align = "center"),
+                    h3("Background and features", align = "center"),
                     br(),
-                    p("The Regional Monitoring Networks (RMNs) are groups of long-term stream monitoring sites designed
+                    h4("Purpose of this site"),
+                    p("One challenge of using continuous water monitoring devices is managing the tremendous amount of data they generate.
+                      One sensor recording one parameter every 30 minutes will produce over 17,000 records in one year.
+                      All of those records must be checked for errors before they can be used for further analyses. 
+                      Following completion of quality control checks, creating summaries of the very detailed continuous 
+                      records is important for conveying its key features.
+                      Unfortunately, the sheer number of records can make manual performance of QC and data summarization time-consuming
+                      and error-ridden and lead to backlogs in the analysis of valuable data."),
+                    br(),          
+                    p("This website helps expedite continuous data processing by performing several operations on such data.
+                      They allow users of continuous monitoring data to QC, combine, and summarize their 
+                      continuous data files in a standardized way without having to download any programs to their computer. 
+                      This website also allows users to download U.S. Geological Survey gage data at sites and over periods of their choosing.
+                      Collectively, these should reduce errors due to and time needed for manual processing of continuous data."),
+                    br(),
+                    p("NOTE: This website is under development. New versions will be released periodically. 
+                      E-mail the contacts at the bottom of this page for project updates. 
+                      This website was last updated on 3/26/18."),
+                    br(),
+                    h4("Features of this website"),
+                    p("Each feature below is described in more detail in the presentation found on the 'Instructions & interface' tab."),
+                    tags$b("1. QC raw data:"), 
+                    p("Using this website, you can perform quality control checks on continuous stream data 
+                      in a standardized way without having to download any programs to your computer.  
+                      This website was developed for air and water temperature and pressure, sensor depth, and stream flow measurements.
+                      It has not been tested for other water parameters, such as conductivity, dissolved oxygen, or nutrients. 
+                      You can process files from multiple sites at the same time but the more records you submit, the longer
+                      it will take for the website to process them."),
+                    p("This website performs four QC checks on each input parameter: unrealistic high/low values, spikes, fast rates of change, 
+                      and values staying constant (not changing). 
+                      Each value can pass (P), be flagged as suspect (S), or be flagged as failing (F).
+                      Whether each value is marked as P, S, or F (or X if the test is not applicable to that record) depends on 
+                      the input threshold values for the QC tests.
+                      A file with default threshold values can be found in the 'Advanced features' tab. 
+                      You can also upload your own custom threshold spreadsheet on that tab.
+                      Although this website performs QC checks on the data you input, 
+                      it is up to you to decide how to respond to any erroneous or suspect values. 
+                      The website does not change your values for you.
+                      For each input file, you receive two output files: a spreadsheet with QC flags for each record, 
+                      and a summary report (html document)."),
+                    tags$b("2. Aggregate QC'ed data:"),
+                    p("This website can combine spreadsheets that have been through the QC process in two different ways:
+                      by date or by data type. 
+                      By date: This website can combine multiple QCed spreadsheets from the same site with the same
+                      parameters covering different time periods (e.g., combine 2/8/14-4/15/14 and 4/16/14-7/17/14 into a single 
+                      spreadsheet covering 2/8/14-7/17/14). 
+                      In this case, the files being aggregated should not have overlapping records (i.e. the later input should start after
+                      the end of the first input file).
+                      By parameter: This website can combine multiple QCed spreadsheets with different parameters from the same time period at the same site 
+                      into a multi-parameter spreadsheet (e.g., separate air and water temperature spreadsheets from 7/1/15 to 9/30/15 
+                      into an air-water temperature spreadsheet over that same time period)."),
+                    tags$b("3. Produce summary statistics and plots of QCed data:"), 
+                    p("Each parameter input to this operation produces three summary output files. 
+                      1. A spreadsheet with daily average values.
+                      2. A spreadsheet with annual, seasonal, monthly, and daily averages, medians, minima, maxima, ranges, standard
+                      deviations, and more.
+                      3. A pdf with graphs of summart statistics by day, month, season, and year."),
+                    tags$b("4. Download USGS gage data:"),
+                    p("You can input USGS gage IDs and a date range and the website will 
+                      download a separate csv for each gage over that time period. 
+                      See the 'Download USGS gage data' tab for more information."),
+                    br(),
+                    h4("Further information"),
+                    p("This website and the underlying data processing scripts were originally created for the Regional Monitoring Networks (RMNs).
+                      The RMNs are groups of long-term stream monitoring sites designed
                       to detect changes in stream health over large areas and long time periods.
                       Their goal is to establish a baseline for stream temperature, hydrology, and macroinvertebrate communities
                       in streams across the US and characterize natural variation and long-term trends.
@@ -22,71 +86,24 @@ shinyUI(
                       To this end, the same protocols are being used across RMN sites to collect automated 
                       water temperature measurements at 15 or 30 minute intervals (continuous data). 
                       Some sites also collect water level or flow measurements at the same intervals.
-                      One aspect of using standardized protocols is using the same quality control (QC) checks on data collected
-                      at all sites."),
-                    br(),          
-                    p("This website performs three operations on continuous stream data,
-                      as well as helping users download data from USGS gages.
-                      Collectively, these operations allow all RMN partners to QC and summarize their continuous stream data in 
-                      a standardized way without having to download any programs to their computer.
-                      Although this website was developed for RMNs, non-RMN monitoring programs can use this website
-                      on their data, too."),
+                      One aspect of using standardized protocols is using the same QC checks on data collected
+                      at all sites.
+                      Although this website was originally developed for the RMNs, it is open to all users of continuous water monitoring data."),
                     br(),
-                    p("The features of this website are:"),
-                    tags$b("1. QC raw data."), 
-                    p("Using this website, all RMN partners can perform quality control checks on their continuous stream data 
-                      in a standardized way without having to download any programs to their computer.  
-                      This website accepts air and water temperature and pressure, sensor depth, and stream flow measurements.
-                      You can process files from multiple sites at the same time but the more records you submit, the longer
-                      it will take for the website to process them.
-                      It performs four checks on each input parameter: unrealistic high/low values, spikes, fast rates of change, 
-                      and values staying flat (not changing). 
-                      Each value can pass (P), be flagged as suspect (S), or be flagged as failing (F).
-                      Whether each value is marked as P, S, or F (or X if the test is not applicable) depends on the input threshold
-                      values for the QC tests.
-                      A spreadsheet with default threshold values can be found in the 'Advanced features' tab. 
-                      You can also upload your own custom threshold spreadsheet on that tab.
-                      Although this website performs QC checks on the data you input, 
-                      it is up to you to decide how to respond to any erroneous or suspect values. 
-                      The website does not change your values for you."),
-                    tags$b("2. Aggregate QCed data."),
-                    p("This website can combine spreadsheets that have been through the QC process in two different ways:
-                      by date or by data type. 
-                      By date: This website can combine multiple QCed spreadsheets from the same site with the same
-                      parameters covering different time periods (e.g., combine 2/8/14-4/15/14 and 4/16/14-7/17/14 into a single 
-                      spreadsheet covering 2/8/14-7/17/14). 
-                      By parameter: This website can combine multiple QCed spreadsheets with different parameters from the same time period at the same site 
-                      into a multi-parameter spreadsheet (e.g., separate air and water temperature spreadsheets from 7/1/15 to 9/30/15 
-                      into an air-water spreadsheet over that same time period)."),
-                    tags$b("3. Produce summary statistics and plots of QCed data."), 
-                    p("Each parameter input to this operation produces three summary output files. 
-                      1. A spreadsheet with daily average values.
-                      2. A spreadsheet with annual, seasonal, monthly, and daily averages, medians, minima, maxima, ranges, standard
-                      deviations, and more.
-                      3. A pdf with graphs by day, month, season, and year."),
-                    tags$b("4. Download USGS gage data."),
-                    p("You can input USGS gage IDs and a date range and the website will 
-                      download a separate csv for each gage over that time period. 
-                      See the 'Download USGS gage data' tab for more information."),
-                    br(),
-                    p("If you have questions about the RMNs or this website, please contact Britta Bierwagen (bierwagen.britta@epa.gov), 
-                      David Gibbs (gibbs.david@epa.gov), or Jen Stamp (jen.stamp@tetratech.com).
+                    p("If you have questions about this website or the RMNs, please contact Britta Bierwagen (bierwagen.britta@epa.gov), 
+                      David Gibbs (gibbs.david@epa.gov), and Jen Stamp (jen.stamp@tetratech.com).
                       You may also submit a bug/enhancement notice at this project's",
                       tags$a(href="https://github.com/dagibbs22/RShiny_RMN_QC_scripts/issues", "GitHub page.", target="_blank"),
                       "The R code underlying the data processing (package ContDataQC) was written by Erik Leppo at Tetra Tech, Inc. 
                       The package is available for download from GitHub for running on your computer within R 
                       (repo 'leppott/ContDataQC'). 
                       David Gibbs (ORISE fellow at the U.S. EPA) developed this website."),
-                    br(),
-                    p(paste("NOTE: This website is under development. New versions will be released periodically. 
-                      E-mail the above contacts to find out if there is a new version available at a different link. 
-                      This version was last updated on "), Sys.Date(), "."),
                     br()
                     
              
   ),
            
-  tabPanel("QC tool interface",
+  tabPanel("Instructions & interface",
 
     # Sidebar with inputs for app
     sidebarLayout(
@@ -130,13 +147,16 @@ shinyUI(
             tabPanel("Instructions",
                      h3("Instructions", align = "center"),
                      br(),
-                     p("Below are abbreviated instructions for using the QC/aggregate/summarize features of this
-                      website. 
+                     p("Below are abbreviated instructions for the three operations on this tab: 
+                      QCing raw data, aggregating QC'ed data, and summarizing QC'ed data. 
                       For more complete information on managing continuous data, preparing data for this website,
                       understanding outputs, and troubleshooting, please refer to ",
                      a("this presentation. ", target="_blank", href="RMN_QC_website_slides_2018_02_14.pdf"),
-                       "You can find some test files ",
-                     a("here.", target="_blank", href="Continuous_data_test_files_2017_11_28.zip"),
+                       "If you want to try using this website on previously tested files, you can use these ",
+                     a("test files.", target="_blank", href="Continuous_data_test_files_2017_11_28.zip"),
+                     br(),
+                     br(),
+                     tags$b("QC raw data:"),
                      p("1. Convert all the spreadsheets you will upload to this website into csvs."),
                      p("2. Name your input files as follows: SITENAME_DATATYPE_STARTDATE_ENDDATE.csv. The site name
                          should match the site name in the input files. Data types are as follows: A (air), W (water), G (flow), 
@@ -145,9 +165,10 @@ shinyUI(
                          GOG12F_AW_20130426_20130725.csv, and BE92_AWG_20150304_20151231.csv."),
                      p("3. Download the continuous data ",
                      a("template. ", target = "_blank", href="continuous_data_template_2017_11_15.csv"),
-                     "In order for this website to correctly process your continuous data, you need to format your data in a specific way."),
+                      "In order for this website to correctly process your continuous data, 
+                      you need to format your data and column names following this template."), 
                      p("4. Copy the appropriate column headers from the template into the spreadsheet(s) you want 
-                      the website to process. The only required fields to run the QC process are date-time, station ID, 
+                      the website to process. The only required fields to run the QC process are 'Date Time', 'SiteID', 
                       and at least one measurement column (air, water, sensor depth, or flow). It does not matter what
                       order the columns are in within your spreadsheet(s)."),
                      p("5. Verify that the data in your spreadsheets are in the same formats as the data in 
@@ -159,21 +180,60 @@ shinyUI(
                       the bottom of the spreadsheets that show termination of the sensor log."),
                      p("8. Upload your files to the website using the 'Browse' button to the left."),
                      p("9. Verify that the files are being interpreted correctly in the tables in the 'Summary tables' tab.
-                      If they are not showing as expected, it means that something is wrong with your input file(s), e.g.,
-                      the column headings are incorrect."),
-                     p("10. Select which operation you want to perform on your spreadsheets using the drop-down menu to the left. 
-                      A 'Run operation' button should appear below the operation selection dropd-down menu."),
+                      If they are not showing as expected or if the table is replaced by error messages, 
+                      it means that something is wrong with your input file(s), e.g., a column heading is incorrect."),
+                     p("10. Select 'QC raw data' using the drop-down menu to the left. 
+                      A 'Run operation' button should appear below the operation selection drop-down menu."),
                      p("11. Click the 'Run operation' button. 
                       A progress bar will appear in the bottom-right of the browser tab. 
                       It will advance after each file is processed. 
-                      Thus, if you upload three files, it will wait at 0%, jump to 33%, jump to 66%, and then jump to 100%."),
+                      Thus, if you upload three files, it will wait at 0%, jump to 33%, jump to 66%, and then jump to 100%.
+                       It will not advance while each file is being processed."),
                      p("12. Once the process is completed, a 'Download' button will appear below the 'Run operation'
-                      button. Click the button to download a zip file of all output files (spreadsheets and QC
-                      reports). Where the files will download on your computer depends on the configuration 
-                      of your internet browser."),
+                      button. 
+                      Click the button to download a zip file of all output files (spreadsheets and QC reports). 
+                      Where the files will download on your computer depends on the configuration of your internet browser."),
+                     br(),
+                     tags$b("Aggregate QC'ed data:"),
+                     p("1. Upload your QCed files to the website using the 'Browse' button to the left. 
+                      NOTE: Files must have gone through the QC operation on this website before the 'Aggregate' operation can be used on them."),
+                     p("2. Verify that the files are being interpreted correctly in the tables in the 'Summary tables' tab.
+                      If they are not showing as expected, it means that something is wrong with your input file(s), e.g.,
+                      a column heading is incorrect."),
+                     p("3. Select 'Aggregate QC'ed data' using the drop-down menu to the left. 
+                      A 'Run operation' button should appear below the operation selection drop-down menu."),
+                     p("4. Click the 'Run operation' button. 
+                      A progress bar will appear in the bottom-right of the browser tab. 
+                      It will advance after each file is processed. 
+                      Thus, if you upload three files, it will wait at 0%, jump to 33%, jump to 66%, and then jump to 100%.
+                       It will not advance while each file is being processed."),
+                     p("5. Once the process is completed, a 'Download' button will appear below the 'Run operation'
+                      button. 
+                      Click the button to download a zip file of all output files (spreadsheet and QC report of aggregated data). 
+                      Where the files will download on your computer depends on the configuration of your internet browser."),
+                     br(),
+                     tags$b("Generate summary statistics and plots of QC'ed data:"),
+                     p("1. Upload your QC'ed files to the website using the 'Browse' button to the left. 
+                       NOTE: Files must have gone through the QC operation on this website before the 'Summary statistics' operation can be used on them.
+                       Files do not have to have gone through the 'Aggregate' operation prior to summarization."),
+                     p("2. Verify that the files are being interpreted correctly in the tables in the 'Summary tables' tab.
+                       If they are not showing as expected, it means that something is wrong with your input file(s), e.g.,
+                       a column heading is incorrect."),
+                     p("3. Select 'Summary statistics' using the drop-down menu to the left. 
+                       A 'Run operation' button should appear below the operation selection drop-down menu."),
+                     p("4. Click the 'Run operation' button. 
+                       A progress bar will appear in the bottom-right of the browser tab. 
+                       It will advance after each file is processed. 
+                       Thus, if you upload three files, it will wait at 0%, jump to 33%, jump to 66%, and then jump to 100%.
+                       It will not advance while each file is being processed."),
+                     p("5. Once the process is completed, a 'Download' button will appear below the 'Run operation'
+                       button. 
+                       Click the button to download a zip file of all output files: two csvs and one pdf for each input parameter in each input file. 
+                       Where the files will download on your computer depends on the configuration of your internet browser."),
                      br(),
                      br(),
-                     p("For more information on the input file requirements, please visit the RMN Sharepoint or ftp sites."))
+                     p("For more information on continuous data pre-processing, 
+                      please visit the Regional Monitoring Network Sharepoint or ftp sites."))
             ),
             
             tabPanel("Summary tables",
@@ -212,7 +272,7 @@ shinyUI(
     )
   ),
   
-  tabPanel("Download USGS gage data",
+  tabPanel("Download USGS data",
            fluidRow(
              column(5, 
                 h3("Instructions", align = "Center"),
@@ -259,7 +319,7 @@ shinyUI(
                h3("R console output", align = "Center"),
                p("This panel shows messages output by the QC, aggregating, summarizing, and USGS data retrieval processes. 
                If there are any errors when the tool runs, please copy
-               the messages and send them and your input files to the contacts listed on the tool background tab."),
+               the messages and send them and your input files to the contacts listed on the 'Site introduction' tab."),
                tableOutput("logText"),
                tableOutput("logTextUSGS"),
                tags$b(textOutput("logTextMessage"))
@@ -278,7 +338,8 @@ shinyUI(
                  Please use",
                  a("this ", target="_blank", href="Config_R.zip"),
                  "configuration document as a template."),
-               p("Once you have made your changes to the configuration file, upload them below."),
+               p("Once you have made your changes to the configuration file, upload them below.
+                 You will have the option to return to the default configuration after you upload your custom file."),
                br(),
                #Tool tip code from https://stackoverflow.com/questions/16449252/tooltip-on-shiny-r
                tags$div(title="Select R configuration file to upload here",
@@ -301,8 +362,13 @@ shinyUI(
   tabPanel("FAQ",
            h3("A growing list of potentially frequently asked questions")
            ,br()
-           ,p("Question: What internet browsers is this website compatible with?")
-           ,p("Answer: It has been tested with Internet Explorer and Google Chrome. 
+           ,p("Question: Why does the website header say 'preliminary'?")
+           ,p("Answer: This website is still under development. Features are being added to it. 
+              Moreover, it has not been approved for public release and is not hosted on
+              an official EPA server.")
+           ,br()
+           ,p("Q: What internet browsers is this website compatible with?")
+           ,p("A: It has been tested with Internet Explorer and Google Chrome. 
               It may be compatible with other browsers but they have not been tested.")
            ,br()
            ,p("Q: What will happen if the site IDs in the input file names don't match the site IDs in the 
@@ -336,7 +402,7 @@ shinyUI(
            ,br()
            ,p("Q: What will happen if I accidentally run the wrong process on my input files?")
            ,p("A: Either the tool won't run at all or it'll produce output files with weird names
-              (e.g., if you run the QC process on files you've already run through the QC process, 
+              (e.g., if you run the QC operation on files you've already run through the QC operation, 
               you'll get output files that start with the name 'QC_QC_').")
            ,br()
            ,p("Q: How long does it take for the website to process uploaded files?")
@@ -348,7 +414,7 @@ shinyUI(
            ,p("Q: I ran one of the website's processes and then left my computer for 10 minutes. 
               When I returned the website was grayed out. What happened?")
            ,p("A: The website times out after a few minutes of not being used. 
-              You will need to upload your files and start the process again.")
+              You will need to upload your files and start the process again in order to get files that you can download.")
            ,br()
            ,p("Q: Why does the progress bar stay still for awhile then jump ahead to completion?")
            ,p("A: It's a result of how the website processes uploaded files. 
@@ -374,6 +440,13 @@ shinyUI(
               If you do somehow get someone else's data (instead of or in addition to your own), 
               please contact us.")
            ,br()
+           ,p("Q: Can multiple people use this website simultaneously?")
+           ,p("A: We think that although multiple people can view the website at a time, only one person can run an operation at a time.
+              It appears that if someone else tries to run an operation while you have an operation running, your operation will terminate.
+              Although we hope that this site is widely used and in constant demand, it is not terribly
+              likely that multiple people will be on it at the same time. 
+              However, if the website ever does somehow suggest that multiple people are on it at once, please let us know.")
+           ,br()
            ,p("Q: Can I change the QC thresholds that the QC process uses?")
            ,p("A: Yes, you can. 
               Do so under the 'Advanced features' tab.
@@ -386,8 +459,8 @@ shinyUI(
               You don't need to refer to them unless there's an error, in which case you should send
               the console output to the contacts listed on this website.
               You can also upload your own QC threshold spreadsheet on this tab.")
-           ,p("Q: Can I download data from different USGS gages at different time periods?")
            ,br()
+           ,p("Q: Can I download data from different USGS gages at different time periods?")
            ,p("A: Not at this time. Currently, all USGS gages you enter will have data downloaded 
               over the same time period.")
            ,br()
@@ -395,11 +468,6 @@ shinyUI(
            ,p("A: Mobile use of this app is untested. 
               Please let us know how it goes.
               Just remember that internet access is required.")
-           ,br()
-           ,p("Q: Why does the website header say 'preliminary'?")
-           ,p("A: This website is still under development. Features are being added to it. 
-              Moreover, it has not been approved for public release and is not hosted on
-              an official EPA server.")
            ,br()
   )
   
