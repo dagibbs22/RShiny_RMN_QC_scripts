@@ -276,7 +276,7 @@ shinyServer(function(input, output, session) {
     #Shows the warning if there is more than one site input to Aggregate
     if(operation == "Aggregate" && siteNum != 1){
       return(paste("WARNING: The spreadsheets you have selected for the aggregate process include more than one site. 
-                   Please select spreadsheets that include only one site."))
+                   Please make sure all input spreadsheets are from the same site."))
     }
   })
   

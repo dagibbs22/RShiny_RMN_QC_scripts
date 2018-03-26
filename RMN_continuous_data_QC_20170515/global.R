@@ -1,3 +1,6 @@
+#Developed by David Gibbs, ORISE fellow at the US EPA Office of Research & Development. dagibbs22@gmail.com
+#Written 2017 and 2018
+
 library(shiny) 
 library(shinyFiles)
 library(rmarkdown)
@@ -5,8 +8,7 @@ library(rsconnect)
 library(ContDataQC)
 library(zoo) 
 library(shinythemes)
-#Developed by David Gibbs, ORISE fellow at the US EPA Office of Research & Development. dagibbs22@gmail.com
-#Written 2017 and 2018library(zip)
+library(zip)
 
 ###For downloading new versions of ContDataQC and USGS' DataRetrieval package
 #library(devtools)
